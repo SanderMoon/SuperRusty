@@ -1,3 +1,6 @@
+/// This class is mostly used for practicing the Rust language. 
+/// It is my intention to switch to bitboards ASAP
+
 #[derive(Debug, Copy, Clone)]enum PieceType {
     Pawn,
     Knight,
