@@ -10,6 +10,7 @@ struct PieceType {
     positions: u64,
     // Bitboard representing the possible moves for a piece of this type at a given position
     moves: u64,
+    attacks: u64,
     color: Color
 }
 
@@ -36,61 +37,73 @@ impl ChessBoard {
             white_pawns: PieceType {
                 positions: 0b00000000_00000000_00000000_00000000_00000000_00000000_11111111_00000000,
                 moves: 0,
+                attacks: 0,
                 color: Color::White
             },
             white_rooks: PieceType {
                 positions: 0b00000000_00000000_00000000_00000000_00000000_00000000_00000000_10000001,
                 moves: 0,
+                attacks: 0,
                 color: Color::White
             },
             white_knights: PieceType {
                 positions: 0b00000000_00000000_00000000_00000000_00000000_00000000_00000000_01000010,
                 moves: 0,
+                attacks: 0,
                 color: Color::White
             },
             white_bishops: PieceType {
                 positions: 0b00000000_00000000_00000000_00000000_00000000_00000000_00000000_00100100,
                 moves: 0,
+                attacks: 0,
                 color: Color::White
             },
             white_queen: PieceType {
                 positions: 0b00000000_00000000_00000000_00000000_00000000_00000000_00000000_00010000,
                 moves: 0,
+                attacks: 0,
                 color: Color::White
             },
             white_king: PieceType {
                 positions: 0b00000000_00000000_00000000_00000000_00000000_00000000_00000000_00001000,
                 moves: 0,
+                attacks: 0,
                 color: Color::White
             },
             black_pawns: PieceType {
                 positions: 0b00000000_11111111_00000000_00000000_00000000_00000000_00000000_00000000,
                 moves: 0,
+                attacks: 0,
                 color: Color::Black
             },
             black_rooks: PieceType {
                 positions: 0b10000001_00000000_00000000_00000000_00000000_00000000_00000000_00000000,
                 moves: 0,
+                attacks: 0,
                 color: Color::Black
             },
             black_knights: PieceType {
                 positions: 0b01000010_00000000_00000000_00000000_00000000_00000000_00000000_00000000,
                 moves: 0,
+                attacks: 0,
                 color: Color::Black
             },
             black_bishops: PieceType {
                 positions: 0b00100100_00000000_00000000_00000000_00000000_00000000_00000000_00000000,
                 moves: 0,
+                attacks: 0,
                 color: Color::Black
             },
             black_queen: PieceType {
                 positions: 0b00010000_00000000_00000000_00000000_00000000_00000000_00000000_00000000,
                 moves: 0,
+                attacks: 0,
                 color: Color::Black
             },
             black_king: PieceType {
                 positions: 0b00001000_00000000_00000000_00000000_00000000_00000000_00000000_00000000,
                 moves: 0,
+                attacks: 0,
                 color: Color::Black
             },
         }

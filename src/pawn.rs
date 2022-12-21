@@ -8,7 +8,9 @@ const RANK_FIVE: u64 = 0b00000000_00000000_00000000_11111111_00000000_00000000_0
 const RANK_FOUR: u64 = 0b00000000_00000000_00000000_00000000_11111111_00000000_00000000_00000000;
 
 
-/// Start white pawn functions
+// ##################################
+// # Start of white pawn functions  #
+// ##################################
 
 // A function to generate single pawn pushes for white pawns
 fn white_pawn_single_push(pawn_positions: u64, empty_squares: u64) -> u64 {
@@ -23,7 +25,9 @@ fn white_pawn_double_push(pawns: u64, empty_squares: u64) -> u64 {
     double_push_sqares & RANK_FOUR
 }
 
-/// Start BLACK pawn functions
+// ##################################
+// # Start of black pawn functions  #
+// ##################################
 
 // A function to generate single pawn pushes for white pawns
 fn black_pawn_single_push(pawn_positions: u64, empty_squares: u64) -> u64 {
@@ -38,6 +42,10 @@ fn black_pawn_double_push(pawns: u64, empty_squares: u64) -> u64 {
     double_push_sqares & RANK_FIVE
 }
 
+// ###################################
+// # Start of general pawn functions #
+// ###################################
+
 // A function to generate all moves for pawns depending on color
 fn get_pawn_moves(pawn_positions: u64, empty_squares: u64, color: Color) -> u64 {
     let mut single_pushes = 0;
@@ -51,7 +59,6 @@ fn get_pawn_moves(pawn_positions: u64, empty_squares: u64, color: Color) -> u64 
     }
     single_pushes | double_pushes
 }
-
 
 
 mod tests {
