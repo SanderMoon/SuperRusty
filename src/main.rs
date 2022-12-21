@@ -1,4 +1,6 @@
 mod chess_game;
+mod chess_game_bitboard;
+mod pawn;
 use chess_game::ChessGame;
 
 fn main() {
