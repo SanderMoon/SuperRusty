@@ -91,6 +91,15 @@ fn get_empty_squares(chessboard : ChessBoard) -> u64 {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_new() {
+        let chessboard = ChessBoard::new();
+        let result = chessboard.white_bishops.positions | chessboard.white_king.positions | chessboard.white_knights.positions | chessboard.white_pawns.positions | chessboard.white_queen.positions | chessboard.white_rooks.positions 
+            | chessboard.black_bishops.positions | chessboard.black_king.positions | chessboard.black_knights.positions | chessboard.black_pawns.positions | chessboard.black_queen.positions | chessboard.black_rooks.positions;       
+        let expected = 0b11111111_11111111_00000000_00000000_00000000_00000000_11111111_11111111;
+        assert_eq!(result, expected);
+    }
     
     #[test]
     fn test_get_empty_squares() {
