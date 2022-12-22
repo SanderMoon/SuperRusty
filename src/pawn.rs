@@ -2,10 +2,12 @@ use crate::chess_game_bitboard::Color;
 
 // Some constants for the directions that pawns can move
 const FORWARD: u8 = 8;
-const FORWARD_LEFT: u8 = 7;
-const FORWARD_RIGHT: u8 = 9;
+const FORWARD_RIGHT: u8 = 7;
+const FORWARD_LEFT: u8 = 9;
 const RANK_FIVE: u64 = 0b00000000_00000000_00000000_11111111_00000000_00000000_00000000_00000000;
 const RANK_FOUR: u64 = 0b00000000_00000000_00000000_00000000_11111111_00000000_00000000_00000000;
+const A_FILE: u64 = 0b10000000_10000000_10000000_10000000_10000000_10000000_10000000_10000000;
+const H_FILE: u64 = 0b00000001_00000001_00000001_00000001_00000001_00000001_00000001_00000001;
 
 
 // ##################################
@@ -25,6 +27,19 @@ fn white_pawn_double_push(pawns: u64, empty_squares: u64) -> u64 {
     double_push_sqares & RANK_FOUR
 }
 
+fn white_pawn_attacks(pawn_positions: u64, opponent_pieces: u64) -> u64 {
+    // Shift the pawn bitboard one square to the left, then one square up.
+    // H file is excluded so pawns are not shifted off the board
+    let left_attacks = (pawn_positions << FORWARD_RIGHT ) & !A_FILE;
+
+    // Shift the pawn bitboard one square to the right, then one square up.
+    // A file is excluded so pawns are not shifted off the board
+    let right_attacks = (pawn_positions << FORWARD_LEFT) & !H_FILE;
+
+    // Use the OR operator to combine the left and right attacks.
+    (left_attacks | right_attacks) & opponent_pieces
+}
+
 // ##################################
 // # Start of black pawn functions  #
 // ##################################
@@ -40,6 +55,20 @@ fn black_pawn_double_push(pawns: u64, empty_squares: u64) -> u64 {
     let single_push_squares = black_pawn_single_push(pawns, empty_squares);
     let double_push_sqares = black_pawn_single_push(single_push_squares, empty_squares);
     double_push_sqares & RANK_FIVE
+}
+
+fn black_pawn_attacks(pawn_positions: u64, opponent_pieces: u64) -> u64 {
+
+    // Shift the pawn bitboard one square to the right, then one square up.
+    // A file is excluded so pawns are not shifted off the board
+    let left_attacks = (pawn_positions >> FORWARD_LEFT) & !A_FILE;
+
+    // Shift the pawn bitboard one square to the left, then one square up.
+    // H file is excluded so pawns are not shifted off the board
+    let right_attacks = (pawn_positions >> FORWARD_RIGHT) & !H_FILE;
+
+    // Use the OR operator to combine the left and right attacks.
+    (left_attacks | right_attacks) & opponent_pieces
 }
 
 // ###################################
@@ -152,6 +181,30 @@ mod tests {
         assert_eq!(expected_result, result);
     }
 
+    #[test]
+    fn test_white_pawn_attacks(){
+        //rank 2 is filled with pawns
+        let pawn_initial_position = 0b00000000_00000000_00000000_00000000_00000000_00000000_11111111_00000000;
+        //everything is empty except for the pawn positions and some blockades two ranks in front
+        let opponent_pieces = 0b00000000_00000000_00000000_00000000_00000000_10101010_00000000_00000000;
+        //a double pawn push should result in two full rank shifts except for the blocked pawns
+        let expected_result = opponent_pieces;
+        let result = white_pawn_attacks(pawn_initial_position, opponent_pieces);
+        assert_eq!(expected_result, result);
+    }
+
+    #[test]
+    fn test_white_pawn_attacks_files(){
+        //rank 2 is filled with pawns
+        let pawn_initial_position = 0b00000000_00000000_00000000_00000000_00000000_00000000_10000001_00000000;
+        //everything is empty except for the pawn positions and some blockades two ranks in front
+        let opponent_pieces = 0b00000000_00000000_00000000_00000000_00000000_11000011_00000000_00000000;
+        //a double pawn push should result in two full rank shifts except for the blocked pawns
+        let expected_result = 0b00000000_00000000_00000000_00000000_00000000_01000010_00000000_00000000;
+        let result = white_pawn_attacks(pawn_initial_position, opponent_pieces);
+        assert_eq!(expected_result, result);
+    }
+
     // ##################################
     // # Start of black pawn unit tests #
     // ##################################
@@ -237,6 +290,30 @@ mod tests {
         //a double pawn push should result in two full rank shifts except for the blocked pawns
         let expected_result = 0b00000000_00000000_00000000_10101010_00000000_00000000_00000000_00000000;
         let result = black_pawn_double_push(pawn_initial_position, empty_squares);
+        assert_eq!(expected_result, result);
+    }
+
+    #[test]
+    fn test_black_pawn_attacks(){
+        //rank 2 is filled with pawns
+        let pawn_initial_position = 0b00000000_11111111_00000000_00000000_00000000_00000000_00000000_00000000;
+        //everything is empty except for the pawn positions and some blockades two ranks in front
+        let opponent_pieces = 0b00000000_00000000_10101010_00000000_00000000_00000000_00000000_00000000;
+        //a double pawn push should result in two full rank shifts except for the blocked pawns
+        let expected_result = opponent_pieces;
+        let result = black_pawn_attacks(pawn_initial_position, opponent_pieces);
+        assert_eq!(expected_result, result);
+    }
+
+    #[test]
+    fn test_black_pawn_attacks_files(){
+        //rank 2 is filled with pawns
+        let pawn_initial_position = 0b00000000_10000001_00000000_00000000_00000000_00000000_00000000_00000000;
+        //everything is empty except for the pawn positions and some blockades two ranks in front
+        let opponent_pieces = 0b00000000_00000000_11000011_00000000_00000000_00000000_00000000_00000000;
+        //a double pawn push should result in two full rank shifts except for the blocked pawns
+        let expected_result = 0b00000000_00000000_01000010_00000000_00000000_00000000_00000000_00000000;
+        let result = black_pawn_attacks(pawn_initial_position, opponent_pieces);
         assert_eq!(expected_result, result);
     }
 
