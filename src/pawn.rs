@@ -185,9 +185,9 @@ mod tests {
     fn test_white_pawn_attacks(){
         //rank 2 is filled with pawns
         let pawn_initial_position = 0b00000000_00000000_00000000_00000000_00000000_00000000_11111111_00000000;
-        //everything is empty except for the pawn positions and some blockades two ranks in front
+        //some opponent pieces are in front of the pawns
         let opponent_pieces = 0b00000000_00000000_00000000_00000000_00000000_10101010_00000000_00000000;
-        //a double pawn push should result in two full rank shifts except for the blocked pawns
+        //all opponent pieces should be capturable
         let expected_result = opponent_pieces;
         let result = white_pawn_attacks(pawn_initial_position, opponent_pieces);
         assert_eq!(expected_result, result);
@@ -195,11 +195,11 @@ mod tests {
 
     #[test]
     fn test_white_pawn_attacks_files(){
-        //rank 2 is filled with pawns
+        //rank 2 has a pawn on the A and H file
         let pawn_initial_position = 0b00000000_00000000_00000000_00000000_00000000_00000000_10000001_00000000;
-        //everything is empty except for the pawn positions and some blockades two ranks in front
-        let opponent_pieces = 0b00000000_00000000_00000000_00000000_00000000_11000011_00000000_00000000;
-        //a double pawn push should result in two full rank shifts except for the blocked pawns
+        //some opponent pieces are in front of the pawns
+        let opponent_pieces = 0b00000000_00000000_00000000_00000000_10000001_11000011_00000000_00000000;
+        //only the opponent pieces diagonally from the pawns should be capturable
         let expected_result = 0b00000000_00000000_00000000_00000000_00000000_01000010_00000000_00000000;
         let result = white_pawn_attacks(pawn_initial_position, opponent_pieces);
         assert_eq!(expected_result, result);
@@ -295,11 +295,11 @@ mod tests {
 
     #[test]
     fn test_black_pawn_attacks(){
-        //rank 2 is filled with pawns
+        //rank 7 is filled with pawns
         let pawn_initial_position = 0b00000000_11111111_00000000_00000000_00000000_00000000_00000000_00000000;
-        //everything is empty except for the pawn positions and some blockades two ranks in front
+        //Some opponent pieces are in front of the pawns
         let opponent_pieces = 0b00000000_00000000_10101010_00000000_00000000_00000000_00000000_00000000;
-        //a double pawn push should result in two full rank shifts except for the blocked pawns
+        //All opponent pieces should capturable
         let expected_result = opponent_pieces;
         let result = black_pawn_attacks(pawn_initial_position, opponent_pieces);
         assert_eq!(expected_result, result);
@@ -307,11 +307,11 @@ mod tests {
 
     #[test]
     fn test_black_pawn_attacks_files(){
-        //rank 2 is filled with pawns
+        //rank 7 has two pawns on the A and H file
         let pawn_initial_position = 0b00000000_10000001_00000000_00000000_00000000_00000000_00000000_00000000;
-        //everything is empty except for the pawn positions and some blockades two ranks in front
-        let opponent_pieces = 0b00000000_00000000_11000011_00000000_00000000_00000000_00000000_00000000;
-        //a double pawn push should result in two full rank shifts except for the blocked pawns
+        //Some opponent pieces are in front of the pawns
+        let opponent_pieces = 0b00000000_00000000_11000011_10000001_00000000_00000000_00000000_00000000;
+        //Only the diagonal pieces should be allowed for capture
         let expected_result = 0b00000000_00000000_01000010_00000000_00000000_00000000_00000000_00000000;
         let result = black_pawn_attacks(pawn_initial_position, opponent_pieces);
         assert_eq!(expected_result, result);
