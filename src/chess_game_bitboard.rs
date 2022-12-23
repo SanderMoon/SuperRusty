@@ -5,6 +5,16 @@ pub(crate) enum Color{
     White
 }
 
+#[derive(PartialEq)]
+pub(crate) enum PieceNames{
+    Pawn,
+    Knight,
+    Bishop,
+    Rook,
+    Queen,
+    King,
+}
+
 struct PieceType {
     // Bitboard representing the positions of all pieces of this type on the board
     positions: u64,
@@ -12,6 +22,12 @@ struct PieceType {
     moves: u64,
     attacks: u64,
     color: Color
+}
+
+pub(crate) struct Move {
+    pub piece_type:PieceNames,
+    pub old_position: u64,
+    pub new_position: u64
 }
 
 struct ChessBoard {
