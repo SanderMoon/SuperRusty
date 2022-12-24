@@ -54,7 +54,7 @@ fn white_en_passant_calculation(last_move: &Move, pawn_positions: u64) -> u64 {
         let attack_position = (RANK_FIVE & last_move.new_position) << 8;
         return white_pawn_attacks(pawn_positions, attack_position);
     }
-    // if last pawn did not do a double pawn push, return 0
+    // if last pawn did not do a double pawn push, return no attacks
     0
 }
 
@@ -98,10 +98,9 @@ fn black_en_passant_calculation(last_move: &Move, pawn_positions: u64) -> u64 {
         let attack_position = (RANK_FOUR & last_move.new_position) >> 8;
         return black_pawn_attacks(pawn_positions, attack_position);
     }
-    // if last pawn did not do a double pawn push, return 0
+    // if last pawn did not do a double pawn push, return no attacks
     0
 }
-
 
 // ###################################
 // # Start of general pawn functions #
@@ -119,6 +118,14 @@ fn get_pawn_moves(pawn_positions: u64, empty_squares: u64, color: Color) -> u64 
         double_pushes = black_pawn_double_push(pawn_positions, empty_squares);
     }
     single_pushes | double_pushes
+}
+// get all possible attacks for the pawns
+fn get_pawn_attack_set(last_move: &Move, pawn_positions: u64, opponent_pieces: u64, color: Color) -> u64{
+    if color == Color::White{
+        white_pawn_attacks(pawn_positions, opponent_pieces) | white_en_passant_calculation(last_move, pawn_positions)
+    } else{
+        black_pawn_attacks(pawn_positions, opponent_pieces) | black_en_passant_calculation(last_move, pawn_positions)
+    }
 }
 
 
@@ -412,8 +419,6 @@ mod tests {
         let result = get_pawn_moves(pawn_initial_position, empty_squares, color);
         assert_eq!(expected_result, result);
     }
-
-
 
 }
 
