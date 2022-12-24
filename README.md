@@ -3,8 +3,8 @@ Super Rusty is a Chess AI written in rust.
 
 Open issues can be viewed on the [Github Projects](https://github.com/users/SanderMoon/projects/1) page or on the [issues](https://github.com/SanderMoon/SuperRusty/issues) page. 
 
-Be sure to send me a message if you want to contribute! 
-If there is interest from the community, a discord server can be sey up. 
+Be sure to send me a message if you want to contribute!
+If there is interest from the community, a discord server can be set up. 
 
 ## Project outline
 
