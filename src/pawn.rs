@@ -1,14 +1,11 @@
 use crate::chess_game_bitboard::Color;
+use crate::board_utils::{A_FILE, H_FILE, RANK_FIVE, RANK_FOUR};
+
 
 // Some constants for the directions that pawns can move
 const FORWARD: u8 = 8;
 const FORWARD_RIGHT: u8 = 7;
 const FORWARD_LEFT: u8 = 9;
-const RANK_FIVE: u64 = 0b00000000_00000000_00000000_11111111_00000000_00000000_00000000_00000000;
-const RANK_FOUR: u64 = 0b00000000_00000000_00000000_00000000_11111111_00000000_00000000_00000000;
-const A_FILE: u64 = 0b10000000_10000000_10000000_10000000_10000000_10000000_10000000_10000000;
-const H_FILE: u64 = 0b00000001_00000001_00000001_00000001_00000001_00000001_00000001_00000001;
-
 
 // ##################################
 // # Start of white pawn functions  #
