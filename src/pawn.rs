@@ -1,5 +1,7 @@
 use crate::chess_game_bitboard::Color;
-use crate::board_utils::{A_FILE, H_FILE, RANK_FIVE, RANK_FOUR};
+use crate::chess_game_bitboard::Move;
+use crate::chess_game_bitboard::PieceNames;
+use crate::board_utils::{A_FILE, H_FILE, RANK_SEVEN, RANK_FIVE, RANK_FOUR, RANK_TWO};
 
 
 // Some constants for the directions that pawns can move
@@ -37,6 +39,20 @@ fn white_pawn_attacks(pawn_positions: u64, opponent_pieces: u64) -> u64 {
     (left_attacks | right_attacks) & opponent_pieces
 }
 
+fn white_en_passant_calculation(last_move: &Move, pawn_positions: u64) -> u64 {
+
+    let old_rank_check = RANK_SEVEN & last_move.old_position != 0;
+    let new_rank_check = RANK_FIVE & last_move.new_position != 0;
+    // If pawn did last move and did a double push. Determine en passant
+    if last_move.piece_type == PieceNames::Pawn && old_rank_check && new_rank_check{
+        // shift double pushed pawn one rank back to get the attack position for white
+        let attack_position = (RANK_FIVE & last_move.new_position) << 8;
+        return white_pawn_attacks(pawn_positions, attack_position);
+    }
+    // if last pawn did not do a double pawn push, return no attacks
+    0
+}
+
 // ##################################
 // # Start of black pawn functions  #
 // ##################################
@@ -68,6 +84,19 @@ fn black_pawn_attacks(pawn_positions: u64, opponent_pieces: u64) -> u64 {
     (left_attacks | right_attacks) & opponent_pieces
 }
 
+fn black_en_passant_calculation(last_move: &Move, pawn_positions: u64) -> u64 {
+    let old_rank_check = RANK_TWO & last_move.old_position != 0;
+    let new_rank_check = RANK_FOUR & last_move.new_position != 0;
+    // If pawn did last move and did a double push. Determine en passant
+    if last_move.piece_type == PieceNames::Pawn && old_rank_check && new_rank_check{
+        // shift double pushed pawn one rank back to get the attack position for white
+        let attack_position = (RANK_FOUR & last_move.new_position) >> 8;
+        return black_pawn_attacks(pawn_positions, attack_position);
+    }
+    // if last pawn did not do a double pawn push, return no attacks
+    0
+}
+
 // ###################################
 // # Start of general pawn functions #
 // ###################################
@@ -85,9 +114,19 @@ fn get_pawn_moves(pawn_positions: u64, empty_squares: u64, color: Color) -> u64 
     }
     single_pushes | double_pushes
 }
+// get all possible attacks for the pawns
+fn get_pawn_attack_set(last_move: &Move, pawn_positions: u64, opponent_pieces: u64, color: Color) -> u64{
+    if color == Color::White{
+        white_pawn_attacks(pawn_positions, opponent_pieces) | white_en_passant_calculation(last_move, pawn_positions)
+    } else{
+        black_pawn_attacks(pawn_positions, opponent_pieces) | black_en_passant_calculation(last_move, pawn_positions)
+    }
+}
 
 
 mod tests {
+    use crate::chess_game_bitboard::PieceNames;
+
     use super::*;
 
     // ##################################
@@ -199,6 +238,22 @@ mod tests {
         //only the opponent pieces diagonally from the pawns should be capturable
         let expected_result = 0b00000000_00000000_00000000_00000000_00000000_01000010_00000000_00000000;
         let result = white_pawn_attacks(pawn_initial_position, opponent_pieces);
+        assert_eq!(expected_result, result);
+    }
+
+    #[test]
+    fn test_white_en_passant_calculation(){
+        // There is one pawn on rank 5
+        let pawn_positions = 0b00000000_00000000_00000000_00001000_00000000_00000000_00000000_00000000;
+        // Last move was a double push of a pawn
+        let last_move = Move {
+                piece_type:PieceNames::Pawn,
+                old_position: 0b00000000_00010000_00000000_00000000_00000000_00000000_00000000_00000000,
+                new_position: 0b00000000_00000000_00000000_00010000_00000000_00000000_00000000_00000000
+            };
+        // En passant is possible
+        let expected_result = 0b00000000_00000000_00010000_00000000_00000000_00000000_00000000_00000000;
+        let result = white_en_passant_calculation(&last_move, pawn_positions);
         assert_eq!(expected_result, result);
     }
 
@@ -314,6 +369,22 @@ mod tests {
         assert_eq!(expected_result, result);
     }
 
+    #[test]
+    fn test_black_en_passant_calculation(){
+        // There is one pawn on rank 5
+        let pawn_positions = 0b00000000_00000000_00000000_00000000_00001000_00000000_00000000_00000000;
+        // Last move was a double push of a pawn
+        let last_move = Move {
+                piece_type:PieceNames::Pawn,
+                old_position: 0b00000000_00000000_00000000_00000000_00000000_00000000_00010000_00000000,
+                new_position: 0b00000000_00000000_00000000_00000000_00010000_00000000_00000000_00000000
+            };
+        // En passant is possible
+        let expected_result = 0b00000000_00000000_00000000_00000000_00000000_00010000_00000000_00000000;
+        let result = black_en_passant_calculation(&last_move, pawn_positions);
+        assert_eq!(expected_result, result);
+    }
+
     // ##################################################
     // # Start of general pawn functionality unit tests #
     // ##################################################
@@ -343,8 +414,6 @@ mod tests {
         let result = get_pawn_moves(pawn_initial_position, empty_squares, color);
         assert_eq!(expected_result, result);
     }
-
-
 
 }
 

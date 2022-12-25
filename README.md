@@ -1,35 +1,18 @@
 # SuperRusty
 Super Rusty is a Chess AI written in rust.
 
-# To-do:
+Open issues can be viewed on the [Github Projects](https://github.com/users/SanderMoon/projects/1) page or on the [issues](https://github.com/SanderMoon/SuperRusty/issues) page. 
 
-## Chess framework
-- ~~Define pieces~~
-- ~~Define board~~
-- Define moves of pieces
-  - Pawns (and en passant)
-  - Knights
-  - Rooks (and Castling)
-  - Queen
-  - Bishops
-  - King
-- Implement pawn promotion
-- Check for check
-- Check for mate
-- Check validity of a move
-- Support chess notation input
+Be sure to send me a message if you want to contribute!
+If there is interest from the community, a discord server can be set up. 
 
-## AI
-- Define evaluation function
-- Define possible moves
-- Create basic negamax implementation
+## Project outline
 
+This is mainly a hobby projects to get into the Rust programming language, as well as to learn about advanced chess engines.
+The outline of the project is as follows:
 
-## Get all possible moves:
-1. Iterate over each piece type (pawns, knights, bishops, rooks, queens, and kings) and generate a list of legal moves for that piece type. You can do this by using bitwise operations and lookup tables to compute the squares that the pieces can legally move to, based on their type and the current board state.
-
-2. For each piece type, iterate over the bitboard for that piece type, and use bit-scanning or magic bitboards (as described in the previous answer) to extract the legal moves for each individual piece.
-
-3. Add the legal moves for each piece to a list of all legal moves.
-
-4. When you have processed all the piece types, the list of legal moves will contain all the possible (and legal) moves for the current position on the board.
+- Everything will be built from scratch, including the chessboard representation and the AI.
+- The chessboard representation is created using [bitboards](https://www.chessprogramming.org/Bitboards)
+- The bit board functions for move and attack generation should be heavily unit tested and commented, as debugging these are hard.
+- The first version of the AI will use a simple tree-search algorithm like [Negamax AB search](https://en.wikipedia.org/wiki/Negamax) or [Monte Carlo Tree Search (MCTS)](https://en.wikipedia.org/wiki/Monte_Carlo_tree_search).
+- Based on the choice of tree search algorithm, a neural network will be added to either replace the evaluation function in a Negamax implementation like [NNUE](https://www.chessprogramming.org/NNUE), or one that replaces random simulation with an evaluation score in an MCTS implementation. 
