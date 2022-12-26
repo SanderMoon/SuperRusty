@@ -1,11 +1,11 @@
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Debug)]
 pub(crate) enum Color{
     Black,
     White
 }
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Debug)]
 pub(crate) enum PieceNames{
     Pawn,
     Knight,
@@ -15,13 +15,14 @@ pub(crate) enum PieceNames{
     King,
 }
 
-struct PieceType {
+#[derive(PartialEq, Debug)]
+pub(crate) struct PieceType {
     // Bitboard representing the positions of all pieces of this type on the board
-    positions: u64,
+    pub positions: u64,
     // Bitboard representing the possible moves for a piece of this type at a given position
-    moves: u64,
-    attacks: u64,
-    color: Color
+    pub moves: u64,
+    pub attacks: u64,
+    pub color: Color
 }
 
 pub(crate) struct Move {
@@ -31,18 +32,18 @@ pub(crate) struct Move {
 }
 
 struct ChessBoard {
-    white_pawns: PieceType,
-    white_knights: PieceType,
-    white_bishops: PieceType,
-    white_rooks: PieceType,
-    white_queen: PieceType,
-    white_king: PieceType,
-    black_pawns: PieceType,
-    black_knights: PieceType,
-    black_bishops: PieceType,
-    black_rooks: PieceType,
-    black_queen: PieceType,
-    black_king: PieceType,
+    pub white_pawns: PieceType,
+    pub white_knights: PieceType,
+    pub white_bishops: PieceType,
+    pub white_rooks: PieceType,
+    pub white_queen: PieceType,
+    pub white_king: PieceType,
+    pub black_pawns: PieceType,
+    pub black_knights: PieceType,
+    pub black_bishops: PieceType,
+    pub black_rooks: PieceType,
+    pub black_queen: PieceType,
+    pub black_king: PieceType,
 }
 
 /// Basic implementation of a bitboard.
