@@ -1,6 +1,7 @@
 mod chess_game;
 mod chess_game_bitboard;
 mod board_utils;
+mod magic_bitboards;
 mod pawn;
 mod knight;
 mod king;

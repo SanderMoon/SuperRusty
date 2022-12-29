@@ -1,3 +1,63 @@
+use crate::board_utils::{RANKS, FILES};
+
+pub(crate) fn blockermask_rook (square: u64) -> u64 {
+    // Find the index of the least significant 1 in the bitboard
+    let index = square.trailing_zeros();
+    let mut blocker_mask = 0;
+
+    // Calculate the row and column of the index
+    let row = index / 8;
+    let col = index % 8;
+    let row_mask = RANKS[row as usize];
+    let col_mask = FILES[col as usize];
+    blocker_mask |= row_mask;
+    blocker_mask |= col_mask;
+
+    // Remove the first and last columns and rows if the piece is not on there. 
+    if row != 0 {
+        blocker_mask &= !RANKS[0];
+    }
+    if row != 7 {
+        blocker_mask &= !RANKS[7];
+    }
+    if col != 0 {
+        blocker_mask &= !FILES[0];
+    }
+    if col != 7 {
+        blocker_mask &= !FILES[7];
+    }
+
+    //remove the piece itself form the blocker mask and return
+    blocker_mask ^ square
+}
+
+
+
+
+mod tests{
+
+    use super::*;
+    #[test]
+    fn test_blockermask_rook(){
+        let input =             0b00000000_00000000_00000000_00000000_00010000_00000000_00000000_00000000;
+        let expected_result =   0b00000000_00010000_00010000_00010000_01101110_00010000_00010000_00000000;
+        let result = blockermask_rook(input);
+        assert_eq!(expected_result, result);
+    }
+    #[test]
+    fn test_blockermask_rook_corner(){
+        let input =             0b00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000001;
+        let expected_result =   0b00000000_00000001_00000001_00000001_00000001_00000001_00000001_01111110;
+        let result = blockermask_rook(input);
+        assert_eq!(expected_result, result);
+    }
+}
+
+
+
+
+
+
 
 // source: https://github.com/maksimKorzh/chess_programming/blob/master/src/magics/magics.txt
 
