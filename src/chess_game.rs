@@ -1,5 +1,5 @@
 /// This class is mostly used for practicing the Rust language. 
-/// It is my intention to switch to bitboards ASAP
+/// It is currently unused
 
 #[derive(Debug, Copy, Clone)]enum PieceType {
     Pawn,
@@ -67,77 +67,5 @@ impl ChessGame{
         
         ChessGame{board: board}
 
-    }
-
-    #[doc = "This function returns a string visualizing the chessboard"]
-    pub fn visualize(&self) -> String {
-        let mut result = String::new();
-        for i in 0..8 {
-            for j in 0..8 {
-                if j == 0 {
-                    result += format!("{} ", 8 - 1 - i + 1).as_str();
-                }
-                result += format!("{} ", visualize_square(self.board, j, 7 - i)).as_str();
-            }
-            result += "\n";
-        }
-
-        result += "  ";
-        for i in 0..8 {
-            result += format!("{} ", char::from_u32('A' as u32 + i).unwrap()).as_str();
-        }
-
-        result
-    }
-}
-
-#[doc = "This function returns a string visualizing the a square on the board"]
-fn visualize_square(board: ChessBoard, x: i32, y: i32) -> &'static str {
-    match board[y as usize][x as usize] {
-        Some(piece) => {
-            visualize_filled_squares(piece)
-        },
-        None => {
-            visualize_empty_square(x, y)
-        }
-    }
-}
-
-#[doc = "This function returns a string visualizing the a square on the board that has a piece on it"]
-fn visualize_filled_squares(piece: Piece) -> &'static str {
-    match piece.piece_type {
-        PieceType::Pawn => match piece.color {
-            Color::White => "♙",
-            Color::Black => "♟︎"
-        }
-        PieceType::Knight => match piece.color {
-            Color::White => "♘",
-            Color::Black => "♞"
-        }
-        PieceType::Bishop => match piece.color {
-            Color::White => "♗",
-            Color::Black => "♝"
-        }
-        PieceType::Rook => match piece.color {
-            Color::White => "♖",
-            Color::Black => "♜"
-        }
-        PieceType::Queen => match piece.color {
-            Color::White => "♕",
-            Color::Black => "♛"
-        }
-        PieceType::King => match piece.color {
-            Color::White => "♔",
-            Color::Black => "♚"
-        }
-    }
-}
-
-#[doc = "This function returns a string visualizing the an empty square on the board"]
-fn visualize_empty_square(x: i32, y: i32) -> &'static str {
-    if (x + y) % 2 == 0 {
-        "■"
-    } else {
-        "□"
     }
 }
