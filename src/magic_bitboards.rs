@@ -2,7 +2,7 @@ use crate::board_utils::{RANKS, FILES};
 
 pub(crate) fn blockermask_rook (square: u64) -> u64 {
     // Find the index of the least significant 1 in the bitboard
-    let index = square.trailing_zeros();
+    let index = square.trailing_zeros() as u8;
     let mut blocker_mask = 0;
 
     // Calculate the row and column of the index
@@ -14,25 +14,84 @@ pub(crate) fn blockermask_rook (square: u64) -> u64 {
     blocker_mask |= col_mask;
 
     // Remove the first and last columns and rows if the piece is not on there. 
-    if row != 0 {
-        blocker_mask &= !RANKS[0];
-    }
-    if row != 7 {
-        blocker_mask &= !RANKS[7];
-    }
-    if col != 0 {
-        blocker_mask &= !FILES[0];
-    }
-    if col != 7 {
-        blocker_mask &= !FILES[7];
-    }
+    remove_edges(row, &mut blocker_mask, col);
 
     //remove the piece itself form the blocker mask and return
     blocker_mask ^ square
 }
 
+pub(crate) fn blockermask_bishop (square: u64) -> u64 {
+    // Find the index of the least significant 1 in the bitboard
+    let index:u8 = square.trailing_zeros() as u8;
+    let mut blocker_mask = 0;
 
+    // Calculate the row and column of the index
+    let row: u8 = index / 8;
+    let col: u8 = index % 8;
+    let mut diagonal_mask_1 = 0;
+    let mut diagonal_mask_2 = 0;
 
+    // find diagonal going SE from bishop position
+    let mut i = row as u8;
+    let mut j = col as u8;
+    while i > 0 && j > 0 {
+        diagonal_mask_1 |= 1 << (8 * i + j);
+        i -= 1;
+        j -= 1;
+    }
+
+    // find diagonal going NW from bishop position
+    i = row as u8;
+    j = col as u8;
+    while i < 8 && j < 8 {
+        diagonal_mask_1 |= 1 << (8 * i + j);
+        i += 1;
+        j += 1;
+    }
+
+    // find diagonal going NE from bishop position
+    i = row as u8;
+    j = col as u8;
+    while i > 0 && j < 8 {
+        diagonal_mask_2 |= 1 << (8 * i + j);
+        i -= 1;
+        j += 1;
+    }
+
+    // find diagonal going SW from bishop position
+    i = row as u8;
+    j = col as u8;
+    while i < 8 && j > 0 {
+        diagonal_mask_2 |= 1 << (8 * i + j);
+        i += 1;
+        j -= 1;
+    }
+    
+    // Add the two diagonal masks to the blocker mask
+    blocker_mask |= diagonal_mask_1;
+    blocker_mask |= diagonal_mask_2;
+
+    // Remove the edges if piece is not positioned on the edge
+    remove_edges(row, &mut blocker_mask, col);
+
+    // Remove the piece itself from the blocker mask and return
+    blocker_mask ^ square
+}
+
+fn remove_edges(row: u8, blocker_mask: &mut u64, col: u8) {
+    if row != 0 {
+        *blocker_mask &= !RANKS[0];
+    }
+    if row != 7 {
+        *blocker_mask &= !RANKS[7];
+    }
+    if col != 0 {
+        *blocker_mask &= !FILES[0];
+    }
+    if col != 7 {
+        *blocker_mask &= !FILES[7];
+    }
+}
 
 mod tests{
 
@@ -44,11 +103,47 @@ mod tests{
         let result = blockermask_rook(input);
         assert_eq!(expected_result, result);
     }
+
     #[test]
     fn test_blockermask_rook_corner(){
         let input =             0b00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000001;
         let expected_result =   0b00000000_00000001_00000001_00000001_00000001_00000001_00000001_01111110;
         let result = blockermask_rook(input);
+        assert_eq!(expected_result, result);
+    }
+
+    #[test]
+    fn test_remove_edges(){
+        let row: u8 = 1;
+        let mut blocker_mask: u64 = 0b11111111_10000001_10000001_10000001_10000001_10000001_10000001_11111111;
+        let  col:u8 = 1;
+        let expected_result:u64 =   0;
+        remove_edges(row, &mut blocker_mask, col);
+        assert_eq!(expected_result, blocker_mask);
+    }
+
+    #[test]
+    fn test_remove_edges_corner(){
+        let row: u8 = 0;
+        let mut blocker_mask: u64 = 0b11111111_10000001_10000001_10000001_10000001_10000001_10000001_11111111;
+        let  col:u8 = 0;
+        let expected_result:u64 =   0b00000000_00000001_00000001_00000001_00000001_00000001_00000001_01111111;
+        remove_edges(row, &mut blocker_mask, col);
+        assert_eq!(expected_result, blocker_mask);
+    }
+
+    #[test]
+    fn test_blockermask_bishop(){
+        let input =             0b00000000_00000000_00000000_00000000_00010000_00000000_00000000_00000000;
+        let expected_result =   0b00000000_00000010_01000100_00101000_00000000_00101000_01000100_00000000;
+        let result = blockermask_bishop(input);
+        assert_eq!(expected_result, result);
+    }
+    #[test]
+    fn test_blockermask_bishop_corner(){
+        let input =             0b00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000001;
+        let expected_result =   0b00000000_01000000_00100000_00010000_00001000_00000100_00000010_00000000;
+        let result = blockermask_bishop(input);
         assert_eq!(expected_result, result);
     }
 }
