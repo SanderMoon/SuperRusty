@@ -128,12 +128,12 @@ impl ChessBitboard {
     /// Visualizes the bitboard by returning a Unicode represention
     pub(crate) fn visualize(&self) -> String {
         let mut result = String::new();
-        for i in 0..8 {
-            for j in 0..8 {
-                if j == 0 {
-                    result += format!("{} ", 8 - 1 - i + 1).as_str();
+        for y in (0..8).rev() {
+            for x in 0..8 {
+                if x == 0 {
+                    result += format!("{} ", y + 1).as_str();
                 }
-                result += format!("{} ", get_square_character(self, 7 - j, 7 - i)).as_str();
+                result += format!("{} ", get_square_character(self, x, y)).as_str();
             }
             result += "\n";
         }
@@ -201,15 +201,15 @@ fn get_square_character(bitboard: &ChessBitboard, x: i32, y: i32) -> &'static st
     }
 
     if (x + y) % 2 == 0 {
-        return "□";
+        return "■";
     }
     
-    "■" 
+    "□" 
 }
 
 /// Takes a bitboard bitstring and a positioon to check out if it is marked
 fn get_square(positions: u64, x: i32, y: i32) -> bool {
-    return (positions >> (y * 8 + x)) & 1 == 1
+    return (positions >> (y * 8 + (7 - x))) & 1 == 1
 }
 
 /// Takes a chess board and returns a bit board containing 1's on all places where there is an empty square. 
