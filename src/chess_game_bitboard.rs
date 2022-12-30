@@ -205,7 +205,7 @@ fn get_square_character(bitboard: &ChessBoard, x: i32, y: i32) -> &'static str {
 
 /// Takes a bitboard bitstring and a position to check out if it is marked
 fn get_square(positions: u64, x: i32, y: i32) -> bool {
-    return (positions >> (y * 8 + (7 - x))) & 1 == 1
+    (positions >> (y * 8 + (7 - x))) & 1 == 1
 }
 
 /// Takes a chess board and returns a bit board containing 1's on all places where there is an empty square. 
