@@ -138,11 +138,7 @@ impl ChessBoard {
             result += "\n";
         }
         
-        result += "  ";
-        for i in 0..8 {
-            result += format!("{} ", char::from_u32('A' as u32 + i).unwrap()).as_str();
-        }
-
+        result += "  A B C D E F G H ";
         result
     }
 }
