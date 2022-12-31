@@ -93,6 +93,38 @@ fn remove_edges(row: u8, blocker_mask: &mut u64, col: u8) {
     }
 }
 
+fn generate_blockerboard(index: u32, blockermask: u64) -> u64 {
+    let mut blockerboard = blockermask;
+    let mut bitindex: u8 = 0;
+
+    for i in 0..64 {
+        // if there is a 1 in the blockermask on index i
+        if blockermask & (1 << i) != 0 {
+            // If there is no 1 on the specified position in the index bit mask
+            if (index & (1 << bitindex)) == 0 {
+                // clear the bit from the blockerboard
+                blockerboard &= !(1 << i);
+            }
+            bitindex += 1;
+        }
+    }
+    blockerboard
+}
+
+fn generate_blockerboards_for_square(square: u8, rook_blockermask: [u64; 64], mut rook_blockerboards: &mut [[u64; 4096]; 64]) {
+    let bits = rook_blockermask[square as usize].count_ones();
+
+    // Generate all possible combinations of bits in the blockermask.
+    // For example, if the blockermask has 10 bits set, this loop will generate
+    // all possible combinations of the positions and number of ones in the blockermask,
+    // ranging from 0 to 2^10 = 1024.
+    // On a normal chess board the maximum number of bits set in a blockermask is 12, so there are 4096 boards possible per mask. 
+    for i in 0..(1 << bits) {
+        rook_blockerboards[square as usize][i as usize] = generate_blockerboard(i, rook_blockermask[square as usize]);
+    }
+}
+
+
 mod tests{
 
     use super::*;
@@ -147,9 +179,6 @@ mod tests{
         assert_eq!(expected_result, result);
     }
 }
-
-
-
 
 
 
