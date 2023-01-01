@@ -1,4 +1,4 @@
-use crate::board_utils::{RANKS, FILES};
+use crate::{board_utils::{RANKS, FILES}, chess_game_bitboard::{PieceType, PieceNames}};
 
 pub(crate) fn blockermask_rook (square: u64) -> u64 {
     // Find the index of the least significant 1 in the bitboard
@@ -77,6 +77,20 @@ pub(crate) fn blockermask_bishop (square: u64) -> u64 {
     // Remove the piece itself from the blocker mask and return
     blocker_mask ^ square
 }
+
+pub(crate) fn generate_all_blockermasks(pieceName: PieceNames) -> [u64; 64]{
+    let mut blockermasks: [u64; 64] = [0; 64];
+    for i in 0..64{
+        let square = 1 << i;
+        if pieceName == PieceNames::Rook {
+            blockermasks[i] = blockermask_rook(square);
+        } else {
+            blockermasks[i] = blockermask_bishop(square);
+        }
+    }
+    blockermasks
+}
+
 
 fn remove_edges(row: u8, blocker_mask: &mut u64, col: u8) {
     if row != 0 {
@@ -177,6 +191,18 @@ mod tests{
         let expected_result =   0b00000000_01000000_00100000_00010000_00001000_00000100_00000010_00000000;
         let result = blockermask_bishop(input);
         assert_eq!(expected_result, result);
+    }
+
+    #[test]
+    fn test_generate_all_blockermasks_rook_no_null(){
+        let result = generate_all_blockermasks(PieceNames::Rook);
+        assert!(result.iter().all(|&x| x != 0));
+    }
+
+    #[test]
+    fn test_generate_all_blockermasks_bishop_no_null(){
+        let result = generate_all_blockermasks(PieceNames::Bishop);
+        assert!(result.iter().all(|&x| x != 0));
     }
 }
 
