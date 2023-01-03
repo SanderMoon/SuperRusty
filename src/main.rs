@@ -4,13 +4,9 @@ mod board_utils;
 mod pawn;
 mod knight;
 mod king;
-use chess_game::ChessGame;
+use chess_game_bitboard::ChessBoard;
 
 fn main() {
-    let chess : ChessGame = initialize_chess_board();
-    println!("{:#?}", &chess);
-}
-
-fn initialize_chess_board() -> ChessGame{
-    ChessGame::new()
+    let chess_board : ChessBoard = ChessBoard::new();
+    println!("{}", chess_board.visualize());
 }

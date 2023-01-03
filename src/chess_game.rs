@@ -1,5 +1,5 @@
 /// This class is mostly used for practicing the Rust language. 
-/// It is my intention to switch to bitboards ASAP
+/// It is currently unused
 
 #[derive(Debug, Copy, Clone)]enum PieceType {
     Pawn,
@@ -31,7 +31,7 @@ pub(crate) struct ChessGame {
 }
 
 impl ChessGame{
-    #[doc = "this function return a new ChessGame with a standard chess board configuration"]
+    #[doc = "This function return a new ChessGame with a standard chess board configuration."]
     pub fn new() -> ChessGame {
         let mut board: ChessBoard =  [[None;8]; 8];
 

@@ -1,4 +1,3 @@
-
 #[derive(PartialEq, Debug)]
 pub(crate) enum Color{
     Black,
@@ -31,7 +30,7 @@ pub(crate) struct Move {
     pub new_position: u64
 }
 
-struct ChessBoard {
+pub(crate) struct ChessBoard {
     pub white_pawns: PieceType,
     pub white_knights: PieceType,
     pub white_bishops: PieceType,
@@ -48,7 +47,7 @@ struct ChessBoard {
 
 /// Basic implementation of a bitboard.
 impl ChessBoard {
-    fn new() -> ChessBoard {
+    pub fn new() -> ChessBoard {
         // Initialize a new chessboard with the standard starting positions
         ChessBoard {
             white_pawns: PieceType {
@@ -122,10 +121,91 @@ impl ChessBoard {
                 moves: 0,
                 attacks: 0,
                 color: Color::Black
-            },
+            }
         }
     }
 
+    /// Visualizes the bitboard by returning a Unicode represention
+    pub(crate) fn visualize(&self) -> String {
+        let mut result = String::new();
+        for y in (0..8).rev() {
+            for x in 0..8 {
+                if x == 0 {
+                    result += format!("{} ", y + 1).as_str();
+                }
+                result += format!("{} ", get_square_character(self, x, y)).as_str();
+            }
+            result += "\n";
+        }
+        
+        result += "  A B C D E F G H ";
+        result
+    }
+}
+
+/// Takes a bitboard object and a position and returns the Unicode representation 
+/// of that square
+fn get_square_character(bitboard: &ChessBoard, x: i32, y: i32) -> &'static str {
+    // TODO: Improve this by storing piece information in a array, or dictionary with
+    // the pawn piece enum as the key value
+    if get_square(bitboard.white_pawns.positions, x, y) {
+       return "♙";
+    }
+
+    if get_square(bitboard.black_pawns.positions, x, y) {
+        return "♟︎";
+    }
+     
+    if get_square(bitboard.white_knights.positions, x, y) {
+        return "♘";
+    }
+
+    if get_square(bitboard.black_knights.positions, x, y) {
+        return "♞";
+    }
+
+    if get_square(bitboard.white_bishops.positions, x, y) {
+        return "♗";
+    }
+
+    if get_square(bitboard.black_bishops.positions, x, y) {
+        return "♝";
+    }
+
+    if get_square(bitboard.white_rooks.positions, x, y) {
+        return "♖";
+    }
+
+    if get_square(bitboard.black_rooks.positions, x, y) {
+        return "♜";
+    }
+
+    if get_square(bitboard.white_queen.positions, x, y) {
+        return "♕";
+    }
+
+    if get_square(bitboard.black_queen.positions, x, y) {
+        return "♛";
+    }
+
+    if get_square(bitboard.white_king.positions, x, y) {
+        return "♔";
+    }
+
+    if get_square(bitboard.black_king.positions, x, y) {
+        return "♚";
+    }
+
+    if (x + y) % 2 == 0 {
+        return "■";
+    }
+    
+    "□" 
+}
+
+/// Takes a bitboard bitstring and a position to check out if it is marked
+fn get_square(positions: u64, x: i32, y: i32) -> bool {
+    (positions >> (y * 8 + (7 - x))) & 1 == 1
 }
 
 /// Takes a chess board and returns a bit board containing 1's on all places where there is an empty square. 
@@ -178,6 +258,25 @@ mod tests {
         let chessboard = ChessBoard::new();
         let result = get_black_pieces(&chessboard);
         let expected = 0b11111111_11111111_00000000_00000000_00000000_00000000_00000000_00000000;
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn test_visualize(){
+        let chessboard = ChessBoard::new();
+        let result = chessboard.visualize().replace(" ", "");
+        
+        let expected = "
+            8 ♜ ♞ ♝ ♛ ♚ ♝ ♞ ♜ 
+            7 ♟︎ ♟︎ ♟︎ ♟︎ ♟︎ ♟︎ ♟︎ ♟︎ 
+            6 □ ■ □ ■ □ ■ □ ■ 
+            5 ■ □ ■ □ ■ □ ■ □ 
+            4 □ ■ □ ■ □ ■ □ ■ 
+            3 ■ □ ■ □ ■ □ ■ □ 
+            2 ♙ ♙ ♙ ♙ ♙ ♙ ♙ ♙ 
+            1 ♖ ♘ ♗ ♕ ♔ ♗ ♘ ♖ 
+              A B C D E F G H 
+        ".trim().replace(" ", "");
         assert_eq!(result, expected);
     }
 }
