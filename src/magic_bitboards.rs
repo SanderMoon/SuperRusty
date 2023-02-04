@@ -144,76 +144,53 @@ fn generate_blockerboards_for_square(square: u8, rook_blockermask: [u64; 64], mu
     }
 }
 
+
 fn generate_moveboard_for_square(square: u64, move_pattern : u64, blockerboard : u64) -> u64 {
     let index = square.trailing_zeros() as i8;
     let row: i8 = index / 8;
     let col: i8 = index % 8;
     let mut moveboard = move_pattern;
+
     let mut clear_switch = false;
     // find the southernmost bit and clear the ranks more south
     for x in (0..row).rev() {
-        // if the switch is active, clear the row
-        if clear_switch{
-            moveboard &= !RANKS[x as usize];
-        }
-        // isolate bit
-        let next_bit = 1 << (8 * x + col);
-        // The first encountered 1 will set the switch for clearing the rest of the move_pattern
-        if next_bit & blockerboard != 0 {
-            clear_switch = true;
-        }
+        clear_axes(&mut clear_switch, &mut moveboard, x, col, x, blockerboard, RANKS);
     }
 
     clear_switch = false;
-
     //find the northermost bit and clear the rank more north
     for x in row..8 {
-        // if the switch is active, clear the row
-        if clear_switch {
-            moveboard &= !RANKS[x as usize];
-        }
-        // isolate bit
-        let next_bit = 1 << (8 * x + col);
-        // The first encountered 1 will set the switch for clearing the rest of the move_pattern
-        if next_bit & blockerboard != 0 {
-            clear_switch = true;
-        }
+        clear_axes(&mut clear_switch, &mut moveboard, x, col, x, blockerboard, RANKS);
     }
 
     clear_switch = false;
-
     // find the westernmost bit and clear the files more west
     for x in col..8 {
-        // if the switch is active, clear the column
-        if clear_switch {
-            moveboard &= !FILES[x as usize];
-        }
-        // isolate bit
-        let next_bit = 1 << (8 * row + x);
-        // The first encountered 1 will set the switch for clearing the rest of the move_pattern
-        if next_bit & blockerboard != 0 {
-            clear_switch = true;
-        }
+        clear_axes(&mut clear_switch, &mut moveboard, row, x, x, blockerboard, FILES);
     }
 
-    // find the easternmost bit and clear the files more eastern
     clear_switch = false;
+    // find the easternmost bit and clear the files more eastern
     for x in (0..col).rev() {
-        // if the switch is active, clear the column
-        if clear_switch {
-            moveboard &= !FILES[x as usize];
-        }
-        // isolate bit
-        let next_bit = 1 << (8 * row + x);
-        // The first encountered 1 will set the switch for clearing the rest of the move_pattern
-        if next_bit & blockerboard != 0 {
-            clear_switch = true;
-        }
+        clear_axes(&mut clear_switch, &mut moveboard, row, x, x, blockerboard, FILES);
     }
 
     // clear the square itself to obtain the moveboard
     moveboard ^ square
 
+}
+
+fn clear_axes(clear_switch: &mut bool, moveboard: &mut u64, row: i8, col: i8, axes_to_clear: i8, blockerboard: u64, axis: [u64;8]) {
+    // if the switch is active, clear the row
+    if *clear_switch{
+        *moveboard &= !axis[axes_to_clear as usize];
+    }
+    // isolate bit
+    let next_bit = 1 << (8 * row + col);
+    // The first encountered 1 will set the switch for clearing the rest of the move_pattern
+    if next_bit & blockerboard != 0 {
+        *clear_switch = true;
+    }
 }
 
 
