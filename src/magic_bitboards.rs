@@ -1,4 +1,17 @@
-use crate::{board_utils::{RANKS, FILES}, chess_game_bitboard::{PieceType, PieceNames}};
+use crate::{board_utils::{RANKS, FILES}, chess_game_bitboard::{PieceNames}};
+
+use lazy_static::lazy_static;
+
+lazy_static! {
+    static ref BLOCKERMASKS_ROOK: [u64; 64] = generate_all_blockermasks(PieceNames::Rook);
+    static ref BLOCKERMASKS_BISHOP: [u64; 64] = generate_all_blockermasks(PieceNames::Bishop);
+
+    static ref BLOCKERBOARDS_ROOK: Vec<Vec<u64>> = generate_all_blockerboards(&BLOCKERMASKS_ROOK);
+    static ref BLOCKERBOARDS_BISHOP: Vec<Vec<u64>> = generate_all_blockerboards(&BLOCKERMASKS_BISHOP);
+
+    static ref MOVEBOARDS_ROOK: Vec<Vec<u64>>= generate_all_moveboards(&BLOCKERBOARDS_ROOK, PieceNames::Rook);
+    static ref MOVEBOARDS_BISHOP: Vec<Vec<u64>> = generate_all_moveboards(&BLOCKERBOARDS_BISHOP, PieceNames::Bishop);
+}
 
 pub(crate) fn blockermask_rook (square: u64) -> u64 {
     // Find the index of the least significant 1 in the bitboard
@@ -6,7 +19,7 @@ pub(crate) fn blockermask_rook (square: u64) -> u64 {
     let row = index / 8;
     let col = index % 8;
 
-    let pattern = generate_rook_move_pattern(row, col);
+    let pattern = generate_rook_move_pattern(row as i8, col as i8);
     // Remove the first and last columns and rows if the piece is not on there. 
     let blocker_mask = remove_edges(row, pattern, col);
 
@@ -14,7 +27,7 @@ pub(crate) fn blockermask_rook (square: u64) -> u64 {
     blocker_mask ^ square
 }
 
-fn generate_rook_move_pattern(row: u8, col: u8) -> u64 {
+fn generate_rook_move_pattern(row: i8, col: i8) -> u64 {
     // Calculate the row and column of the index
     let mut pattern = 0;
     let row_mask = RANKS[row as usize];
@@ -39,6 +52,23 @@ pub(crate) fn blockermask_bishop (square: u64) -> u64 {
 
     // Remove the piece itself from the blocker mask and return
     blocker_mask ^ square
+}
+
+fn remove_edges(row: u8, all_moves: u64, col: u8) -> u64 {
+    let mut blocker_mask = all_moves;
+    if row != 0 {
+        blocker_mask &= !RANKS[0];
+    }
+    if row != 7 {
+        blocker_mask &= !RANKS[7];
+    }
+    if col != 0 {
+        blocker_mask &= !FILES[0];
+    }
+    if col != 7 {
+        blocker_mask &= !FILES[7];
+    }
+    blocker_mask
 }
 
 fn generate_bishop_move_pattern(row: i8, col: i8) -> u64 {
@@ -82,35 +112,17 @@ fn generate_bishop_move_pattern(row: i8, col: i8) -> u64 {
     pattern
 }
 
-pub(crate) fn generate_all_blockermasks(pieceName: PieceNames) -> [u64; 64]{
+pub(crate) fn generate_all_blockermasks(piece_name: PieceNames) -> [u64; 64]{
     let mut blockermasks: [u64; 64] = [0; 64];
     for i in 0..64{
         let square = 1 << i;
-        if pieceName == PieceNames::Rook {
+        if piece_name == PieceNames::Rook {
             blockermasks[i] = blockermask_rook(square);
         } else {
             blockermasks[i] = blockermask_bishop(square);
         }
     }
     blockermasks
-}
-
-
-fn remove_edges(row: u8, all_moves: u64, col: u8) -> u64 {
-    let mut blocker_mask = all_moves;
-    if row != 0 {
-        blocker_mask &= !RANKS[0];
-    }
-    if row != 7 {
-        blocker_mask &= !RANKS[7];
-    }
-    if col != 0 {
-        blocker_mask &= !FILES[0];
-    }
-    if col != 7 {
-        blocker_mask &= !FILES[7];
-    }
-    blocker_mask
 }
 
 fn generate_blockerboard(index: u32, blockermask: u64) -> u64 {
@@ -131,17 +143,25 @@ fn generate_blockerboard(index: u32, blockermask: u64) -> u64 {
     blockerboard
 }
 
-fn generate_blockerboards_for_square(square: u8, rook_blockermask: [u64; 64], mut rook_blockerboards: &mut [[u64; 4096]; 64]) {
-    let bits = rook_blockermask[square as usize].count_ones();
-
+fn generate_blockerboards_for_square(square: u8, blockermask: &[u64; 64], blockerboards: &mut Vec<Vec<u64>>) {
+    let bits = blockermask[square as usize].count_ones();
+    
     // Generate all possible combinations of bits in the blockermask.
     // For example, if the blockermask has 10 bits set, this loop will generate
     // all possible combinations of the positions and number of ones in the blockermask,
     // ranging from 0 to 2^10 = 1024.
     // On a normal chess board the maximum number of bits set in a blockermask is 12, so there are 4096 boards possible per mask. 
     for i in 0..(1 << bits) {
-        rook_blockerboards[square as usize][i as usize] = generate_blockerboard(i, rook_blockermask[square as usize]);
+        blockerboards[square as usize][i as usize] = generate_blockerboard(i, blockermask[square as usize]);
     }
+}
+
+fn generate_all_blockerboards(blockermask: &[u64; 64]) -> Vec<Vec<u64>>{
+    let mut blockerboards = vec![vec![0u64; 4096]; 64];
+    for i in 0..64{
+        generate_blockerboards_for_square(i, blockermask, &mut blockerboards);
+    }
+    blockerboards
 }
 
 
@@ -153,14 +173,14 @@ fn generate_moveboard_for_square(square: u64, move_pattern : u64, blockerboard :
 
     let mut clear_switch = false;
     // find the southernmost bit and clear the ranks more south
-    for x in (0..row).rev() {
-        clear_axes(&mut clear_switch, &mut moveboard, x, col, x, blockerboard, RANKS);
+    for y in (0..row).rev() {
+        clear_axes(&mut clear_switch, &mut moveboard, y, col, y, blockerboard, RANKS);
     }
 
     clear_switch = false;
     //find the northermost bit and clear the rank more north
-    for x in row..8 {
-        clear_axes(&mut clear_switch, &mut moveboard, x, col, x, blockerboard, RANKS);
+    for y in row..8 {
+        clear_axes(&mut clear_switch, &mut moveboard, y, col, y, blockerboard, RANKS);
     }
 
     clear_switch = false;
@@ -193,7 +213,31 @@ fn clear_axes(clear_switch: &mut bool, moveboard: &mut u64, row: i8, col: i8, ax
     }
 }
 
+fn generate_all_moveboards(blockerboards: &Vec<Vec<u64>>, piece_name: PieceNames) -> Vec<Vec<u64>>{
+    let move_pattern = generate_all_move_patterns(piece_name);
 
+    let mut moveboards = vec![vec![0u64; 4096]; 64];
+    for i in 0..64{
+        for j in 0..4096{
+            moveboards[i][j] = generate_moveboard_for_square(1 << i, move_pattern[i], blockerboards[i][j]);
+        }
+    }
+    moveboards
+}
+
+fn generate_all_move_patterns(piece_name: PieceNames) -> [u64; 64] {
+    let mut move_pattern: [u64; 64] = [0; 64];
+    for y in 0..8{
+        for x in 0..8{
+            if piece_name == PieceNames::Rook {
+                move_pattern[8 * y + x] = generate_bishop_move_pattern(y as i8, x as i8);
+            } else {
+                move_pattern[8 * y + x] = generate_rook_move_pattern(y as i8, x as i8);
+            }
+        }
+    }
+    move_pattern
+}
 
 
 mod tests{
@@ -210,7 +254,7 @@ mod tests{
     #[test]
     fn test_generate_rook_move_pattern(){
         let square:u64 = 0b00000000_00000000_00000000_00000000_00000000_00000000_00000010_00000000;
-        let index = square.trailing_zeros() as u8;
+        let index = square.trailing_zeros() as i8;
         let row = index / 8;
         let col = index % 8;
         let result = generate_rook_move_pattern(row, col);
@@ -294,4 +338,29 @@ mod tests{
         assert_eq!(expected_result, actual_result);
         
     }
+
+    #[test]
+    fn test_generate_all_move_patterns_rook_not_empty(){
+        let result = generate_all_move_patterns(PieceNames::Rook);
+        assert!(result.iter().all(|&x| x != 0));
+    }
+
+    #[test]
+    fn test_generate_all_move_patterns_bishop_not_empty(){
+        let result = generate_all_move_patterns(PieceNames::Bishop);
+        assert!(result.iter().all(|&x| x != 0));
+    }
+
+    #[test]
+    fn test_generate_all_blockermasks_rook_not_empty(){
+        let result = generate_all_blockermasks(PieceNames::Rook);
+        assert!(result.iter().all(|&x| x != 0));
+    }
+
+    #[test]
+    fn test_generate_all_blockermasks_bishop_not_empty(){
+        let result = generate_all_blockermasks(PieceNames::Bishop);
+        assert!(result.iter().all(|&x| x != 0));
+    }
+
 }
