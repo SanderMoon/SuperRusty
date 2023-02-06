@@ -214,12 +214,20 @@ fn clear_axes(clear_switch: &mut bool, moveboard: &mut u64, row: i8, col: i8, ax
 }
 
 fn generate_all_moveboards(blockerboards: &Vec<Vec<u64>>, piece_name: PieceNames) -> Vec<Vec<u64>>{
-    let move_pattern = generate_all_move_patterns(piece_name);
-
+    // Q1 Does the move pattern match the blockerboard by index?
+    //let move_pattern = generate_all_move_patterns(piece_name);
     let mut moveboards = vec![vec![0u64; 4096]; 64];
     for i in 0..64{
+        let square = 1 << i;
+        let move_pattern ;
+        if piece_name == PieceNames::Rook {
+            move_pattern = generate_rook_move_pattern(i / 8 as i8, i % 8 as i8);
+        } else {
+            move_pattern = generate_bishop_move_pattern(i / 8 as i8, i % 8 as i8);
+        }
+        
         for j in 0..4096{
-            moveboards[i][j] = generate_moveboard_for_square(1 << i, move_pattern[i], blockerboards[i][j]);
+            moveboards[i as usize][j] = generate_moveboard_for_square(square, move_pattern, blockerboards[i as usize][j]);
         }
     }
     moveboards
@@ -361,6 +369,15 @@ mod tests{
     fn test_generate_all_blockermasks_bishop_not_empty(){
         let result = generate_all_blockermasks(PieceNames::Bishop);
         assert!(result.iter().all(|&x| x != 0));
+    }
+
+    #[test]
+    fn test_generate_all_blockerboards(){
+        let piece_name = PieceNames::Rook;
+        let blockermasks = generate_all_blockermasks(piece_name);
+        let mut blockerboards = generate_all_blockerboards(&blockermasks);
+        let moveboards = generate_all_moveboards(&blockerboards, PieceNames::Rook);
+        assert!(blockermasks.iter().all(|&x| x != 0));
     }
 
 }
