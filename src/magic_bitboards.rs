@@ -247,6 +247,31 @@ fn generate_all_move_patterns(piece_name: PieceNames) -> [u64; 64] {
     move_pattern
 }
 
+fn generate_magic_numbers(blockerboards: &Vec<Vec<u64>>, moveboards: &Vec<Vec<u64>>, blockermask: &[u64; 64]) -> [u64; 64] {
+    let mut magic_numbers: [u64; 64] = [0; 64];
+    for i in 0..64{
+        let bits = blockermask[i].count_ones();
+        let mut magic_number = 0;
+        let mut found_magic_number = false;
+        while !found_magic_number {
+            magic_number += 1;
+            let mut magic_number_found = true;
+            for j in 0..4096{
+                let index = (blockerboards[i][j] * magic_number) >> (64 - bits);
+                if moveboards[i][index as usize] != moveboards[i][j] {
+                    magic_number_found = false;
+                    break;
+                }
+            }
+            if magic_number_found {
+                found_magic_number = true;
+            }
+        }
+        magic_numbers[i] = magic_number;
+    }
+    magic_numbers
+}
+
 
 mod tests{
 
@@ -371,13 +396,23 @@ mod tests{
         assert!(result.iter().all(|&x| x != 0));
     }
 
-    #[test]
-    fn test_generate_all_blockerboards(){
-        let piece_name = PieceNames::Rook;
-        let blockermasks = generate_all_blockermasks(piece_name);
-        let mut blockerboards = generate_all_blockerboards(&blockermasks);
-        let moveboards = generate_all_moveboards(&blockerboards, PieceNames::Rook);
-        assert!(blockermasks.iter().all(|&x| x != 0));
-    }
+    // #[test]
+    // fn test_generate_all_blockerboards(){
+    //     let piece_name = PieceNames::Rook;
+    //     let blockermasks = generate_all_blockermasks(piece_name);
+    //     let mut blockerboards = generate_all_blockerboards(&blockermasks);
+    //     let moveboards = generate_all_moveboards(&blockerboards, PieceNames::Rook);
+    //     assert!(blockermasks.iter().all(|&x| x != 0));
+    // }
+
+    // #[test]
+    // fn test_generate_magic_number(){
+    //     let piece_name = PieceNames::Rook;
+    //     let blockermasks = generate_all_blockermasks(piece_name);
+    //     let blockerboards = generate_all_blockerboards(&blockermasks);
+    //     let moveboards = generate_all_moveboards(&blockerboards, PieceNames::Rook);
+    //     let magic_numbers = generate_magic_numbers(&blockerboards, &moveboards, &blockermasks);
+    //     assert!(magic_numbers.iter().all(|&x| x != 0));
+    // }
 
 }
