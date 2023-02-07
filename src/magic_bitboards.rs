@@ -251,24 +251,31 @@ fn generate_all_move_patterns(piece_name: PieceNames) -> [u64; 64] {
 
 
 
-fn generate_magic_numbers(blockerboards: &Vec<Vec<u64>>, moveboards: &Vec<Vec<u64>>, blockermask: &[u64; 64]) -> [u64; 64] {
+fn generate_magic_numbers(blockerboards: &Vec<Vec<u64>>, moveboards: &Vec<Vec<u64>>, blockermask: &[u64; 64]) -> ([u64; 64], Vec<Vec<Option<u64>>>) {
     let mut magic_numbers: [u64; 64] = [0; 64];
-    magic_numbers.par_iter_mut().enumerate().for_each(|(i, magic_number)| {
+    //magic_numbers.par_iter_mut().enumerate().for_each(|(i, magic_number)| {
+        //create an empty vector
+    let mut magic_tables: Vec<Vec<Option<u64>>> = vec![vec![None; 4096]; 64];
+    for i in 0..64{
         println!("Generating magic number for square {}", i);
         let bits = blockermask[i].count_ones();
         let mut magic= 0;
         let mut found_magic_number = false;
         let mut max_index = 0;
         while !found_magic_number {
+            let mut table = vec![None; 1 << bits];
             magic = rand::random::<u64>() & rand::random::<u64>() & rand::random::<u64>();
             let mut magic_number_found = true;
             for j in 0..(1 << bits){
-                if j > max_index {
-                    max_index = j;
-                    println!("Max index for square {} : {}", i, max_index)
-                }
+                // if j > max_index {
+                //     max_index = j;
+                //     println!("Max index for square {} : {}", i, max_index)
+                // }
                 let index = (blockerboards[i][j as usize].wrapping_mul(magic)) >> (64 - bits);
-                if moveboards[i][index as usize] != moveboards[i][j as usize] {
+                
+                if table[index as usize] == None {
+                    table[index as usize] = Some(moveboards[i][j as usize]);
+                } else {
                     magic_number_found = false;
                     break;
                 }
@@ -276,11 +283,12 @@ fn generate_magic_numbers(blockerboards: &Vec<Vec<u64>>, moveboards: &Vec<Vec<u6
             if magic_number_found {
                 println!("Found magic number for square {} : {}", i, magic);
                 found_magic_number = true;
+                magic_tables[i] = table;
             }
         }
-        *magic_number = magic;
-    });
-    magic_numbers
+        magic_numbers[i] = magic;
+    }
+    (magic_numbers, magic_tables)
 }
 
 
@@ -422,7 +430,7 @@ mod tests{
         let blockermasks = generate_all_blockermasks(piece_name);
         let blockerboards = generate_all_blockerboards(&blockermasks);
         let moveboards = generate_all_moveboards(&blockerboards, PieceNames::Rook);
-        let magic_numbers = generate_magic_numbers(&blockerboards, &moveboards, &blockermasks);
+        let (magic_numbers, magic_tables) = generate_magic_numbers(&blockerboards, &moveboards, &blockermasks);
         assert!(magic_numbers.iter().all(|&x| x != 0));
     }
 
