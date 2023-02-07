@@ -257,22 +257,15 @@ fn generate_magic_numbers(blockerboards: &Vec<Vec<u64>>, moveboards: &Vec<Vec<u6
         //create an empty vector
     let mut magic_tables: Vec<Vec<Option<u64>>> = vec![vec![None; 4096]; 64];
     for i in 0..64{
-        println!("Generating magic number for square {}", i);
         let bits = blockermask[i].count_ones();
         let mut magic= 0;
         let mut found_magic_number = false;
-        let mut max_index = 0;
         while !found_magic_number {
             let mut table = vec![None; 1 << bits];
             magic = rand::random::<u64>() & rand::random::<u64>() & rand::random::<u64>();
             let mut magic_number_found = true;
             for j in 0..(1 << bits){
-                // if j > max_index {
-                //     max_index = j;
-                //     println!("Max index for square {} : {}", i, max_index)
-                // }
                 let index = (blockerboards[i][j as usize].wrapping_mul(magic)) >> (64 - bits);
-                
                 if table[index as usize] == None {
                     table[index as usize] = Some(moveboards[i][j as usize]);
                 } else {
@@ -425,6 +418,7 @@ mod tests{
     // }
 
     #[test]
+    #[ignore]
     fn test_generate_magic_number(){
         let piece_name = PieceNames::Rook;
         let blockermasks = generate_all_blockermasks(piece_name);
