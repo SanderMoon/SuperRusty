@@ -259,9 +259,9 @@ fn generate_magic_numbers(blockerboards: &Vec<Vec<u64>>, moveboards: &Vec<Vec<u6
         while !found_magic_number {
             magic += 1;
             let mut magic_number_found = true;
-            for j in 0..4096{
-                let index = (blockerboards[i][j] * magic) >> (64 - bits);
-                if moveboards[i][index as usize] != moveboards[i][j] {
+            for j in 0..(1 << bits){
+                let index = (blockerboards[i][j as usize] * magic) >> (64 - bits);
+                if moveboards[i][index as usize] != moveboards[i][j as usize] {
                     magic_number_found = false;
                     break;
                 }
