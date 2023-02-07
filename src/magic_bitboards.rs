@@ -432,6 +432,20 @@ mod tests{
         let moveboards = generate_all_moveboards(&blockerboards, PieceNames::Rook);
         let (magic_numbers, magic_tables) = generate_magic_numbers(&blockerboards, &moveboards, &blockermasks);
         assert!(magic_numbers.iter().all(|&x| x != 0));
+        // test if each blockerboard * magic_number maps gives an index of an element in the magic table that is equal to the moveboard
+        for i in 0..64{
+            let blockermask = blockermasks[i];
+            let bits = blockermask.count_ones();
+            let magic_number = magic_numbers[i];
+            let blockerboard = &blockerboards[i];
+            let magic_table = &magic_tables[i];
+            for j in 0..(1 << bits){
+                let index = (blockerboard[j].wrapping_mul(magic_number)) >> (64 - bits);
+                let moveboard = moveboards[i][j];
+                assert_eq!(magic_table[index as usize], Some(moveboard));
+            }
+        }
+
     }
 
 }
