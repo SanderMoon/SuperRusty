@@ -13,6 +13,11 @@ lazy_static! {
 
     static ref MOVEBOARDS_ROOK: Vec<Vec<u64>>= generate_all_moveboards(&BLOCKERBOARDS_ROOK, PieceNames::Rook);
     static ref MOVEBOARDS_BISHOP: Vec<Vec<u64>> = generate_all_moveboards(&BLOCKERBOARDS_BISHOP, PieceNames::Bishop);
+
+    static ref MAGIC_TUPLE_ROOK : ([u64; 64], Vec<Vec<Option<u64>>>)  = generate_magic_numbers(&BLOCKERBOARDS_ROOK ,&MOVEBOARDS_ROOK, &BLOCKERMASKS_ROOK);
+    static ref MAGIC_TUPLE_BISHOP : ([u64; 64], Vec<Vec<Option<u64>>>)  = generate_magic_numbers(&BLOCKERBOARDS_BISHOP ,&MOVEBOARDS_BISHOP, &BLOCKERMASKS_BISHOP);
+
+
 }
 
 pub(crate) fn blockermask_rook (square: u64) -> u64 {
@@ -250,8 +255,8 @@ fn generate_all_move_patterns(piece_name: PieceNames) -> [u64; 64] {
 }
 
 
-
 fn generate_magic_numbers(blockerboards: &Vec<Vec<u64>>, moveboards: &Vec<Vec<u64>>, blockermask: &[u64; 64]) -> ([u64; 64], Vec<Vec<Option<u64>>>) {
+
     let mut magic_numbers: [u64; 64] = [0; 64];
     //magic_numbers.par_iter_mut().enumerate().for_each(|(i, magic_number)| {
         //create an empty vector
@@ -419,13 +424,36 @@ mod tests{
 
     #[test]
     #[ignore]
-    fn test_generate_magic_number(){
+    fn test_generate_magic_number_rook(){
         let piece_name = PieceNames::Rook;
         let blockermasks = generate_all_blockermasks(piece_name);
         let blockerboards = generate_all_blockerboards(&blockermasks);
         let moveboards = generate_all_moveboards(&blockerboards, PieceNames::Rook);
         let (magic_numbers, magic_tables) = generate_magic_numbers(&blockerboards, &moveboards, &blockermasks);
-        assert!(magic_numbers.iter().all(|&x| x != 0));
+        // test if each blockerboard * magic_number maps gives an index of an element in the magic table that is equal to the moveboard
+        for i in 0..64{
+            let blockermask = blockermasks[i];
+            let bits = blockermask.count_ones();
+            let magic_number = magic_numbers[i];
+            let blockerboard = &blockerboards[i];
+            let magic_table = &magic_tables[i];
+            for j in 0..(1 << bits){
+                let index = (blockerboard[j].wrapping_mul(magic_number)) >> (64 - bits);
+                let moveboard = moveboards[i][j];
+                assert_eq!(magic_table[index as usize], Some(moveboard));
+            }
+        }
+
+    }
+
+    #[test]
+    #[ignore]
+    fn test_generate_magic_number_bishop(){
+        let piece_name = PieceNames::Bishop;
+        let blockermasks = generate_all_blockermasks(piece_name);
+        let blockerboards = generate_all_blockerboards(&blockermasks);
+        let moveboards = generate_all_moveboards(&blockerboards, piece_name);
+        let (magic_numbers, magic_tables) = generate_magic_numbers(&blockerboards, &moveboards, &blockermasks);
         // test if each blockerboard * magic_number maps gives an index of an element in the magic table that is equal to the moveboard
         for i in 0..64{
             let blockermask = blockermasks[i];
