@@ -1,8 +1,5 @@
-use crate::{board_utils::{RANKS, FILES}, chess_game_bitboard::{PieceNames}};
-
+use crate::{utils::board_utils::{RANKS, FILES}, chess_game_bitboard::{PieceNames}};
 use lazy_static::lazy_static;
-use rayon::prelude::*;
-
 
 lazy_static! {
     static ref BLOCKERMASKS_ROOK: [u64; 64] = generate_all_blockermasks(PieceNames::Rook);
@@ -119,7 +116,7 @@ fn generate_bishop_move_pattern(row: i8, col: i8) -> u64 {
     pattern
 }
 
-pub(crate) fn generate_all_blockermasks(piece_name: PieceNames) -> [u64; 64]{
+pub fn generate_all_blockermasks(piece_name: PieceNames) -> [u64; 64]{
     let mut blockermasks: [u64; 64] = [0; 64];
     for i in 0..64{
         let square = 1 << i;
@@ -163,7 +160,7 @@ fn generate_blockerboards_for_square(square: u8, blockermask: &[u64; 64], blocke
     }
 }
 
-fn generate_all_blockerboards(blockermask: &[u64; 64]) -> Vec<Vec<u64>>{
+pub fn generate_all_blockerboards(blockermask: &[u64; 64]) -> Vec<Vec<u64>>{
     let mut blockerboards = vec![vec![0u64; 4096]; 64];
     for i in 0..64{
         generate_blockerboards_for_square(i, blockermask, &mut blockerboards);
@@ -220,7 +217,7 @@ fn clear_axes(clear_switch: &mut bool, moveboard: &mut u64, row: i8, col: i8, ax
     }
 }
 
-fn generate_all_moveboards(blockerboards: &Vec<Vec<u64>>, piece_name: PieceNames) -> Vec<Vec<u64>>{
+pub fn generate_all_moveboards(blockerboards: &Vec<Vec<u64>>, piece_name: PieceNames) -> Vec<Vec<u64>>{
     // Q1 Does the move pattern match the blockerboard by index?
     //let move_pattern = generate_all_move_patterns(piece_name);
     let mut moveboards = vec![vec![0u64; 4096]; 64];
@@ -255,12 +252,13 @@ fn generate_all_move_patterns(piece_name: PieceNames) -> [u64; 64] {
 }
 
 
-fn generate_magic_numbers(blockerboards: &Vec<Vec<u64>>, moveboards: &Vec<Vec<u64>>, blockermask: &[u64; 64]) -> ([u64; 64], Vec<Vec<Option<u64>>>) {
+pub fn generate_magic_numbers(blockerboards: &Vec<Vec<u64>>, moveboards: &Vec<Vec<u64>>, blockermask: &[u64; 64]) -> ([u64; 64], Vec<Vec<Option<u64>>>) {
 
     let mut magic_numbers: [u64; 64] = [0; 64];
     //magic_numbers.par_iter_mut().enumerate().for_each(|(i, magic_number)| {
         //create an empty vector
     let mut magic_tables: Vec<Vec<Option<u64>>> = vec![vec![None; 4096]; 64];
+
     for i in 0..64{
         let bits = blockermask[i].count_ones();
         let mut magic= 0;
@@ -452,7 +450,7 @@ mod tests{
         let piece_name = PieceNames::Bishop;
         let blockermasks = generate_all_blockermasks(piece_name);
         let blockerboards = generate_all_blockerboards(&blockermasks);
-        let moveboards = generate_all_moveboards(&blockerboards, piece_name);
+        let moveboards = generate_all_moveboards(&blockerboards, PieceNames::Bishop);
         let (magic_numbers, magic_tables) = generate_magic_numbers(&blockerboards, &moveboards, &blockermasks);
         // test if each blockerboard * magic_number maps gives an index of an element in the magic table that is equal to the moveboard
         for i in 0..64{

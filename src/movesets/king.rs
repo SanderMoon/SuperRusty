@@ -1,4 +1,4 @@
-use crate::board_utils::{A_FILE, H_FILE, RANK_EIGHT, RANK_ONE};
+use crate::utils::board_utils::{A_FILE, H_FILE, RANK_EIGHT, RANK_ONE};
 use crate::chess_game_bitboard::{PieceType};
 
 
