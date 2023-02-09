@@ -1,19 +1,16 @@
 use crate::{utils::board_utils::{RANKS, FILES}, chess_game_bitboard::{PieceNames}};
 use lazy_static::lazy_static;
 
+// This class generate plain magic numbers and look-up tables for the Rooks and Bishops. 
+
 lazy_static! {
     static ref BLOCKERMASKS_ROOK: [u64; 64] = generate_all_blockermasks(PieceNames::Rook);
-    static ref BLOCKERMASKS_BISHOP: [u64; 64] = generate_all_blockermasks(PieceNames::Bishop);
 
     static ref BLOCKERBOARDS_ROOK: Vec<Vec<u64>> = generate_all_blockerboards(&BLOCKERMASKS_ROOK);
-    static ref BLOCKERBOARDS_BISHOP: Vec<Vec<u64>> = generate_all_blockerboards(&BLOCKERMASKS_BISHOP);
 
     static ref MOVEBOARDS_ROOK: Vec<Vec<u64>>= generate_all_moveboards(&BLOCKERBOARDS_ROOK, PieceNames::Rook);
-    static ref MOVEBOARDS_BISHOP: Vec<Vec<u64>> = generate_all_moveboards(&BLOCKERBOARDS_BISHOP, PieceNames::Bishop);
 
     static ref MAGIC_TUPLE_ROOK : ([u64; 64], Vec<Vec<Option<u64>>>)  = generate_magic_numbers(&BLOCKERBOARDS_ROOK ,&MOVEBOARDS_ROOK, &BLOCKERMASKS_ROOK);
-    static ref MAGIC_TUPLE_BISHOP : ([u64; 64], Vec<Vec<Option<u64>>>)  = generate_magic_numbers(&BLOCKERBOARDS_BISHOP ,&MOVEBOARDS_BISHOP, &BLOCKERMASKS_BISHOP);
-
 
 }
 
@@ -161,7 +158,17 @@ fn generate_blockerboards_for_square(square: u8, blockermask: &[u64; 64], blocke
 }
 
 pub fn generate_all_blockerboards(blockermask: &[u64; 64]) -> Vec<Vec<u64>>{
-    let mut blockerboards = vec![vec![0u64; 4096]; 64];
+    // find the maximum number of bits set in the blockermask
+    let mut max_bits = 0;
+    for i in 0..64{
+        let bits = blockermask[i as usize].count_ones();
+        if bits > max_bits {
+            max_bits = bits;
+        }
+    }
+
+    let mut blockerboards = vec![vec![0u64; (1 << max_bits) as usize]; 64];
+
     for i in 0..64{
         generate_blockerboards_for_square(i, blockermask, &mut blockerboards);
     }
@@ -220,7 +227,8 @@ fn clear_axes(clear_switch: &mut bool, moveboard: &mut u64, row: i8, col: i8, ax
 pub fn generate_all_moveboards(blockerboards: &Vec<Vec<u64>>, piece_name: PieceNames) -> Vec<Vec<u64>>{
     // Q1 Does the move pattern match the blockerboard by index?
     //let move_pattern = generate_all_move_patterns(piece_name);
-    let mut moveboards = vec![vec![0u64; 4096]; 64];
+    let array_size = blockerboards[0].len();
+    let mut moveboards = vec![vec![0u64; array_size]; 64];
     for i in 0..64{
         let square = 1 << i;
         let move_pattern ;
@@ -230,7 +238,7 @@ pub fn generate_all_moveboards(blockerboards: &Vec<Vec<u64>>, piece_name: PieceN
             move_pattern = generate_bishop_move_pattern(i / 8 as i8, i % 8 as i8);
         }
         
-        for j in 0..4096{
+        for j in 0..array_size{
             moveboards[i as usize][j] = generate_moveboard_for_square(square, move_pattern, blockerboards[i as usize][j]);
         }
     }
@@ -268,7 +276,8 @@ pub fn generate_magic_numbers(blockerboards: &Vec<Vec<u64>>, moveboards: &Vec<Ve
             magic = rand::random::<u64>() & rand::random::<u64>() & rand::random::<u64>();
             let mut magic_number_found = true;
             for j in 0..(1 << bits){
-                let index = (blockerboards[i][j as usize].wrapping_mul(magic)) >> (64 - bits);
+                let blockerboard = blockerboards[i][j as usize];
+                let index = (blockerboard.wrapping_mul(magic)) >> (64 - bits);
                 if table[index as usize] == None {
                     table[index as usize] = Some(moveboards[i][j as usize]);
                 } else {
