@@ -71,7 +71,6 @@ fn black_pawn_double_push(pawns: u64, empty_squares: u64) -> u64 {
 }
 
 fn black_pawn_attacks(pawn_positions: u64, opponent_pieces: u64) -> u64 {
-
     // Shift the pawn bitboard one square to the right, then one square up.
     // A file is excluded so pawns are not shifted off the board
     let left_attacks = (pawn_positions >> FORWARD_LEFT) & !A_FILE;
