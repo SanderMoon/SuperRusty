@@ -47,6 +47,57 @@ pub(crate) struct ChessBoard {
 
 /// Basic implementation of a bitboard.
 impl ChessBoard {
+
+    // A function that sets a piece to a square on the board based on x, y coordinates
+    // it uses PieceNames to identify the piece type
+    // It uses the color of the piece to determine which bitboard to use
+    // It uses the x, y coordinates to determine which bit to set
+    // pub fn set_square(&mut self, x: usize, y: usize, piece: PieceNames, color: Color) {
+    //     // convert the x, y coordinates to a bitboard position
+    //     let position = 1 << (x + (y * 8));
+    //     // set the bitboard position to 1
+    //     match piece {
+    //         PieceNames::Pawn => {
+    //             match color {
+    //                 Color::White => self.white_pawns.positions |= position,
+    //                 Color::Black => self.black_pawns.positions |= position,
+    //             }
+    //         },
+    //         PieceNames::Knight => {
+    //             match color {
+    //                 Color::White => self.white_knights.positions |= position,
+    //                 Color::Black => self.black_knights.positions |= position,
+    //             }
+    //         },
+    //         PieceNames::Bishop => {
+    //             match color {
+    //                 Color::White => self.white_bishops.positions |= position,
+    //                 Color::Black => self.black_bishops.positions |= position,
+    //             }
+    //         },
+    //         PieceNames::Rook => {
+    //             match color {
+    //                 Color::White => self.white_rooks.positions |= position,
+    //                 Color::Black => self.black_rooks.positions |= position,
+    //             }
+    //         },
+    //         PieceNames::Queen => {
+    //             match color {
+    //                 Color::White => self.white_queen.positions |= position,
+    //                 Color::Black => self.black_queen.positions |= position,
+    //             }
+    //         },
+    //         PieceNames::King => {
+    //             match color {
+    //                 Color::White => self.white_king.positions |= position,
+    //                 Color::Black => self.black_king.positions |= position,
+    //             }
+    //         },
+    //     }
+    // }
+
+
+
     pub fn new() -> ChessBoard {
         // Initialize a new chessboard with the standard starting positions
         ChessBoard {

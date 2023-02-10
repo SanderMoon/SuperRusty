@@ -1,4 +1,3 @@
-mod chess_game;
 mod chess_game_bitboard;
 mod movesets;
 mod utils;
