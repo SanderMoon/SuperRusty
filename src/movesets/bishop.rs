@@ -1,14 +1,5 @@
 
-use lazy_static::lazy_static;
-use crate::{chess_game_bitboard::{PieceNames}};
 use crate::movesets::magic_bitboards::*;
-
-lazy_static! {
-    static ref BLOCKERMASKS_BISHOP: [u64; 64] = generate_all_blockermasks(PieceNames::Bishop);
-    static ref BLOCKERBOARDS_BISHOP: Vec<Vec<u64>> = generate_all_blockerboards(&BLOCKERMASKS_BISHOP);
-    static ref MOVEBOARDS_BISHOP: Vec<Vec<u64>> = generate_all_moveboards(&BLOCKERBOARDS_BISHOP, PieceNames::Bishop);
-    static ref MAGIC_TUPLE_BISHOP : ([u64; 64], Vec<Vec<Option<u64>>>)  = generate_magic_numbers(&BLOCKERBOARDS_BISHOP ,&MOVEBOARDS_BISHOP, &BLOCKERMASKS_BISHOP);
-}
 
 pub(crate) fn bishop_move(square : u64, occupancy : u64 ) -> u64{
     let index = square.trailing_zeros() as usize;
@@ -26,6 +17,7 @@ mod tests {
 
     #[test]
     fn test_bishop_move_no_blockers() {
+        lazy_static::initialize(&MAGIC_TUPLE_BISHOP);
         let square = 0b00000000_00000000_00000000_00001000_00000000_00000000_00000000_00000000;
         let occupancy = 0;
         let expected_move = 0b01000001_00100010_00010100_00000000_00010100_00100010_01000001_10000000;

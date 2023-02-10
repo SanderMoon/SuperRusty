@@ -4,14 +4,21 @@ use lazy_static::lazy_static;
 // This class generate plain magic numbers and look-up tables for the Rooks and Bishops. 
 
 lazy_static! {
-    static ref BLOCKERMASKS_ROOK: [u64; 64] = generate_all_blockermasks(PieceNames::Rook);
-
-    static ref BLOCKERBOARDS_ROOK: Vec<Vec<u64>> = generate_all_blockerboards(&BLOCKERMASKS_ROOK);
-
+    pub(crate) static ref BLOCKERMASKS_ROOK: [u64; 64] = generate_all_blockermasks(PieceNames::Rook);
+    pub(crate) static ref BLOCKERBOARDS_ROOK: Vec<Vec<u64>> = generate_all_blockerboards(&BLOCKERMASKS_ROOK);
     static ref MOVEBOARDS_ROOK: Vec<Vec<u64>>= generate_all_moveboards(&BLOCKERBOARDS_ROOK, PieceNames::Rook);
+    pub(crate) static ref MAGIC_TUPLE_ROOK : ([u64; 64], Vec<Vec<Option<u64>>>)  = generate_magic_numbers(&BLOCKERBOARDS_ROOK ,&MOVEBOARDS_ROOK, &BLOCKERMASKS_ROOK);
 
-    static ref MAGIC_TUPLE_ROOK : ([u64; 64], Vec<Vec<Option<u64>>>)  = generate_magic_numbers(&BLOCKERBOARDS_ROOK ,&MOVEBOARDS_ROOK, &BLOCKERMASKS_ROOK);
+    pub(crate) static ref BLOCKERMASKS_BISHOP: [u64; 64] = generate_all_blockermasks(PieceNames::Bishop);
+    pub(crate) static ref BLOCKERBOARDS_BISHOP: Vec<Vec<u64>> = generate_all_blockerboards(&BLOCKERMASKS_BISHOP);
+    static ref MOVEBOARDS_BISHOP: Vec<Vec<u64>> = generate_all_moveboards(&BLOCKERBOARDS_BISHOP, PieceNames::Bishop);
+    pub(crate) static ref MAGIC_TUPLE_BISHOP : ([u64; 64], Vec<Vec<Option<u64>>>)  = generate_magic_numbers(&BLOCKERBOARDS_BISHOP ,&MOVEBOARDS_BISHOP, &BLOCKERMASKS_BISHOP);
 
+}
+
+pub(crate) fn initialize(){
+    lazy_static::initialize(&MAGIC_TUPLE_ROOK);
+    lazy_static::initialize(&MAGIC_TUPLE_BISHOP);
 }
 
 pub(crate) fn blockermask_rook (square: u64) -> u64 {
