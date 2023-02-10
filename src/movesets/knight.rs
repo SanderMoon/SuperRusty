@@ -1,5 +1,5 @@
 
-use crate::board_utils::{A_FILE, B_FILE, G_FILE, H_FILE, RANK_EIGHT, RANK_SEVEN, RANK_ONE, RANK_TWO};
+use crate::utils::board_utils::{A_FILE, B_FILE, G_FILE, H_FILE, RANK_EIGHT, RANK_SEVEN, RANK_ONE, RANK_TWO};
 use crate::chess_game_bitboard::{PieceType};
 
 

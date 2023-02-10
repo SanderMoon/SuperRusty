@@ -1,11 +1,11 @@
 #[derive(PartialEq, Debug)]
-pub(crate) enum Color{
+pub  enum Color{
     Black,
     White
 }
 
 #[derive(PartialEq, Debug)]
-pub(crate) enum PieceNames{
+pub enum PieceNames{
     Pawn,
     Knight,
     Bishop,

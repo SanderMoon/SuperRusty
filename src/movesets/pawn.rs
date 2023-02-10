@@ -1,7 +1,7 @@
 use crate::chess_game_bitboard::Color;
 use crate::chess_game_bitboard::Move;
 use crate::chess_game_bitboard::PieceNames;
-use crate::board_utils::{A_FILE, H_FILE, RANK_SEVEN, RANK_FIVE, RANK_FOUR, RANK_TWO};
+use crate::utils::board_utils::{A_FILE, H_FILE, RANK_SEVEN, RANK_FIVE, RANK_FOUR, RANK_TWO};
 
 
 // Some constants for the directions that pawns can move

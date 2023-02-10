@@ -16,3 +16,7 @@ The outline of the project is as follows:
 - The bit board functions for move and attack generation should be heavily unit tested and commented, as debugging these are hard.
 - The first version of the AI will use a simple tree-search algorithm like [Negamax AB search](https://en.wikipedia.org/wiki/Negamax) or [Monte Carlo Tree Search (MCTS)](https://en.wikipedia.org/wiki/Monte_Carlo_tree_search).
 - Based on the choice of tree search algorithm, a neural network will be added to either replace the evaluation function in a Negamax implementation like [NNUE](https://www.chessprogramming.org/NNUE), or one that replaces random simulation with an evaluation score in an MCTS implementation. 
+
+## Features:
+- [Bitboard representation and move generation](https://en.wikipedia.org/wiki/Bitboard)
+- [Plain magic bitboards](https://www.chessprogramming.org/Magic_Bitboards#Plain)
