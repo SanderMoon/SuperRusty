@@ -1,9 +1,21 @@
 use std::collections::HashMap;
+use std::ops::Not;
 
 #[derive(PartialEq, Debug, Eq, Hash)]
 pub  enum Color{
     Black,
     White
+}
+
+impl Not for Color {
+    type Output = Color;
+
+    fn not(self) -> Self::Output {
+        match self {
+            Color::Black => Color::White,
+            Color::White => Color::Black,
+        }
+    }
 }
 
 #[derive(PartialEq, Debug, Eq, Hash)]
@@ -40,60 +52,25 @@ pub(crate) struct Move {
     pub new_position: u64
 }
 
+pub(crate) enum Castling {
+    KingSide,
+    QueenSide,
+}
 pub(crate) struct ChessBoard {
     pub piece_infos: HashMap<Color, HashMap<PieceType, PieceInfo>>,
+
+    pub active_color: Color,
+    pub white_king_side_castle: bool,
+    pub white_queen_side_castle: bool,
+    pub black_king_side_castle: bool,
+    pub black_queen_side_castle: bool,
+    pub move_history: Vec<Move>,
+
+
 }
 
 /// Basic implementation of a bitboard.
 impl ChessBoard {
-
-    // A function that sets a piece to a square on the board based on x, y coordinates
-    // it uses PieceNames to identify the piece type
-    // It uses the color of the piece to determine which bitboard to use
-    // It uses the x, y coordinates to determine which bit to set
-    // pub fn set_square(&mut self, x: usize, y: usize, piece: PieceNames, color: Color) {
-    //     // convert the x, y coordinates to a bitboard position
-    //     let position = 1 << (x + (y * 8));
-    //     // set the bitboard position to 1
-    //     match piece {
-    //         PieceNames::Pawn => {
-    //             match color {
-    //                 Color::White => self.white_pawns.positions |= position,
-    //                 Color::Black => self.black_pawns.positions |= position,
-    //             }
-    //         },
-    //         PieceNames::Knight => {
-    //             match color {
-    //                 Color::White => self.white_knights.positions |= position,
-    //                 Color::Black => self.black_knights.positions |= position,
-    //             }
-    //         },
-    //         PieceNames::Bishop => {
-    //             match color {
-    //                 Color::White => self.white_bishops.positions |= position,
-    //                 Color::Black => self.black_bishops.positions |= position,
-    //             }
-    //         },
-    //         PieceNames::Rook => {
-    //             match color {
-    //                 Color::White => self.white_rooks.positions |= position,
-    //                 Color::Black => self.black_rooks.positions |= position,
-    //             }
-    //         },
-    //         PieceNames::Queen => {
-    //             match color {
-    //                 Color::White => self.white_queen.positions |= position,
-    //                 Color::Black => self.black_queen.positions |= position,
-    //             }
-    //         },
-    //         PieceNames::King => {
-    //             match color {
-    //                 Color::White => self.white_king.positions |= position,
-    //                 Color::Black => self.black_king.positions |= position,
-    //             }
-    //         },
-    //     }
-    // }
 
     pub fn new(empty: bool) -> ChessBoard {
         let mut piece_infos = HashMap::new();
@@ -201,7 +178,13 @@ impl ChessBoard {
         
         // Initialize a new chessboard with the standard starting positions
         ChessBoard {
-            piece_infos: piece_infos
+            piece_infos: piece_infos,
+            white_king_side_castle: true,
+            white_queen_side_castle: true,
+            black_king_side_castle: true,
+            black_queen_side_castle: true,
+            active_color: Color::White,
+            move_history: Vec::new()
         }
     }
 
@@ -281,6 +264,31 @@ impl ChessBoard {
             .get_mut(&piece_info.piece_type).unwrap();
             mutable.positions |= position;
     }
+
+    pub(crate) fn set_active_color(&mut self, color: Color) {
+        self.active_color = color;
+    }
+
+    pub(crate) fn set_castling(&mut self, color: Color, castling: Castling) {
+        match castling {
+            Castling::KingSide => {
+                if color == Color::White {
+                    self.white_king_side_castle = true;
+                } else {
+                    self.black_king_side_castle = true;
+                }
+            },
+            Castling::QueenSide => {
+                if color == Color::White {
+                    self.white_queen_side_castle = true;
+                } else {
+                    self.black_queen_side_castle = true;
+                }
+            }
+        }
+    }
+
+
 }
 
 /// Takes a bitboard object and a position and returns the Unicode representation 

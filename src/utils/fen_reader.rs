@@ -1,4 +1,4 @@
-use crate::chess_game_bitboard::{ChessBoard, SinglePieceInfo, PieceType, Color};
+use crate::chess_game_bitboard::{ChessBoard, SinglePieceInfo, PieceType, Color, Castling};
 
 // A function that reads a FEN string and returns a ChessBoard object
 // Example of such a string: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
@@ -9,8 +9,46 @@ pub(crate) fn read_fen(fen: &str) -> ChessBoard{
     let mut chess_board = ChessBoard::new(true);
     // set the board positions
     set_board_positions(&mut chess_board, fen_vec[0]);
+    // set the active color
+    set_active_color(&mut chess_board, fen_vec[1]);
+    // set the castling rights
+    set_castling_rights(&mut chess_board, fen_vec[2]);
     chess_board
 
+}
+
+fn set_castling_rights(chess_board: &mut ChessBoard, castling_string: &str) {
+    // if the castling rights are "-", do nothing
+    if castling_string == "-" {
+        return;
+    }
+    // loop through the castling rights string
+    for character in castling_string.chars() {
+        // set the castling rights for each character
+        match character {
+            'K' => {
+                chess_board.set_castling(Color::White, Castling::KingSide);
+            },
+            'Q' => {
+                chess_board.set_castling(Color::White, Castling::QueenSide);
+            },
+            'k' => {
+                chess_board.set_castling(Color::Black, Castling::KingSide);
+            },
+            'q' => {
+                chess_board.set_castling(Color::Black, Castling::KingSide);
+            },
+            _ => panic!("Invalid character in FEN string"),
+        }
+    }
+}
+
+fn set_active_color(chess_board: &mut ChessBoard, active_color: &str) {
+    chess_board.set_active_color(match active_color {
+        "w" => Color::White,
+        "b" => Color::Black,
+        _ => panic!("Invalid color in FEN string"),
+    });
 }
 
 fn set_board_positions(chessboard: &mut ChessBoard, positions: &str){
@@ -26,7 +64,6 @@ fn set_board_positions(chessboard: &mut ChessBoard, positions: &str){
                 // convert the character to a number
                 let number = character.to_digit(10).unwrap();
                 // skip that many squares
-                println!("Skipping {} squares", number);
                 x += number as usize;
             }
             // if the character is a letter, set the square to that piece
@@ -34,7 +71,6 @@ fn set_board_positions(chessboard: &mut ChessBoard, positions: &str){
                 // convert the character to a piece
                 let mut piece_type: PieceType = PieceType::Pawn;
                 let mut color: Color = Color::Black;
-                println!("Setting square to {}", character);
                 let piece = match character {
                     'p' => { },
                     'P' => {
@@ -114,5 +150,11 @@ mod tests {
         assert_eq!(chess_board.black_rooks().positions, start_board.black_rooks().positions);
         assert_eq!(chess_board.black_queens().positions, start_board.black_queens().positions);
         assert_eq!(chess_board.black_kings().positions, start_board.black_kings().positions);
+        assert_eq!(Color::Black, chess_board.active_color);
+        assert_eq!(true, chess_board.white_king_side_castle);
+        assert_eq!(true, chess_board.white_queen_side_castle);
+        assert_eq!(true, chess_board.black_king_side_castle);
+        assert_eq!(true, chess_board.black_queen_side_castle);
+
     }
 }
