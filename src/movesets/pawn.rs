@@ -1,6 +1,6 @@
 use crate::chess_game_bitboard::Color;
 use crate::chess_game_bitboard::Move;
-use crate::chess_game_bitboard::PieceNames;
+use crate::chess_game_bitboard::PieceType;
 use crate::utils::board_utils::{A_FILE, H_FILE, RANK_SEVEN, RANK_FIVE, RANK_FOUR, RANK_TWO};
 
 
@@ -44,7 +44,7 @@ fn white_en_passant_calculation(last_move: &Move, pawn_positions: u64) -> u64 {
     let old_rank_check = RANK_SEVEN & last_move.old_position != 0;
     let new_rank_check = RANK_FIVE & last_move.new_position != 0;
     // If pawn did last move and did a double push. Determine en passant
-    if last_move.piece_type == PieceNames::Pawn && old_rank_check && new_rank_check{
+    if last_move.piece_type == PieceType::Pawn && old_rank_check && new_rank_check{
         // shift double pushed pawn one rank back to get the attack position for white
         let attack_position = (RANK_FIVE & last_move.new_position) << 8;
         return white_pawn_attacks(pawn_positions, attack_position);
@@ -87,7 +87,7 @@ fn black_en_passant_calculation(last_move: &Move, pawn_positions: u64) -> u64 {
     let old_rank_check = RANK_TWO & last_move.old_position != 0;
     let new_rank_check = RANK_FOUR & last_move.new_position != 0;
     // If pawn did last move and did a double push. Determine en passant
-    if last_move.piece_type == PieceNames::Pawn && old_rank_check && new_rank_check{
+    if last_move.piece_type == PieceType::Pawn && old_rank_check && new_rank_check{
         // shift double pushed pawn one rank back to get the attack position for white
         let attack_position = (RANK_FOUR & last_move.new_position) >> 8;
         return black_pawn_attacks(pawn_positions, attack_position);
@@ -124,7 +124,7 @@ fn get_pawn_attack_set(last_move: &Move, pawn_positions: u64, opponent_pieces: u
 
 
 mod tests {
-    use crate::chess_game_bitboard::PieceNames;
+    use crate::chess_game_bitboard::PieceType;
 
     use super::*;
 
@@ -246,7 +246,7 @@ mod tests {
         let pawn_positions = 0b00000000_00000000_00000000_00001000_00000000_00000000_00000000_00000000;
         // Last move was a double push of a pawn
         let last_move = Move {
-                piece_type:PieceNames::Pawn,
+                piece_type:PieceType::Pawn,
                 old_position: 0b00000000_00010000_00000000_00000000_00000000_00000000_00000000_00000000,
                 new_position: 0b00000000_00000000_00000000_00010000_00000000_00000000_00000000_00000000
             };
@@ -374,7 +374,7 @@ mod tests {
         let pawn_positions = 0b00000000_00000000_00000000_00000000_00001000_00000000_00000000_00000000;
         // Last move was a double push of a pawn
         let last_move = Move {
-                piece_type:PieceNames::Pawn,
+                piece_type:PieceType::Pawn,
                 old_position: 0b00000000_00000000_00000000_00000000_00000000_00000000_00010000_00000000,
                 new_position: 0b00000000_00000000_00000000_00000000_00010000_00000000_00000000_00000000
             };

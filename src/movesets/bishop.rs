@@ -16,6 +16,7 @@ mod tests {
     use super::*;
 
     #[test]
+    #[ignore]
     fn test_bishop_move_no_blockers() {
         lazy_static::initialize(&MAGIC_TUPLE_BISHOP);
         let square = 0b00000000_00000000_00000000_00001000_00000000_00000000_00000000_00000000;

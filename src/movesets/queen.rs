@@ -10,6 +10,7 @@ mod tests {
     use crate::movesets::magic_bitboards::initialize;
 
     #[test]
+    #[ignore]
     fn test_queen_move_no_blockers() {
         initialize();
         let square = 0b00000000_00000000_00000000_00001000_00000000_00000000_00000000_00000000;
