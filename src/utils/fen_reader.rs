@@ -19,22 +19,22 @@ fn set_board_positions(chessboard: &mut ChessBoard, positions: &str){
     // loop through the vector of strings
     for (y, row) in positions_vec.iter().enumerate() {
         // loop through each character in the string
-        for (mut x, character) in row.chars().enumerate() {
+        let mut x = 0;
+        for (_, character) in row.chars().enumerate() {
             // if the character is a digit, skip that many squares
             if character.is_digit(10) {
                 // convert the character to a number
                 let number = character.to_digit(10).unwrap();
                 // skip that many squares
-                for _ in 0..number {
-                    // increment the x position
-                    x += 1;
-                }
+                println!("Skipping {} squares", number);
+                x += number as usize;
             }
             // if the character is a letter, set the square to that piece
             else {
                 // convert the character to a piece
                 let mut piece_type: PieceType = PieceType::Pawn;
                 let mut color: Color = Color::Black;
+                println!("Setting square to {}", character);
                 let piece = match character {
                     'p' => { },
                     'P' => {
@@ -85,6 +85,8 @@ fn set_board_positions(chessboard: &mut ChessBoard, positions: &str){
                     position_x: x,
                     position_y: 7 - y,
                 });
+
+                x += 1;
             }
         }
     }
@@ -96,15 +98,14 @@ mod tests {
 
     #[test]
     fn test_read_fen() {
-        let fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+        let fen = "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1";
         let mut chess_board = read_fen(fen);
-
         let mut start_board = ChessBoard::new(false);
 
-        assert_eq!(chess_board.white_pawns().positions, start_board.white_pawns().positions);
+        assert_eq!(chess_board.white_pawns().positions, 0b00001000_00000000_11110111_00000000);
         assert_eq!(chess_board.white_knights().positions, start_board.white_knights().positions);
         assert_eq!(chess_board.white_bishops().positions, start_board.white_bishops().positions);
-        assert_eq!(chess_board.white_rooks().positions, start_board.white_rooks().positions);
+        assert_eq!(chess_board.white_rooks().positions, start_board.white_rooks().positions );
         assert_eq!(chess_board.white_queens().positions, start_board.white_queens().positions);
         assert_eq!(chess_board.white_kings().positions, start_board.white_kings().positions);
         assert_eq!(chess_board.black_pawns().positions, start_board.black_pawns().positions);
