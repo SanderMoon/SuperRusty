@@ -205,8 +205,60 @@ impl ChessBoard {
         }
     }
 
+    pub(crate) fn white_pawns(&mut self) -> &PieceInfo {
+        self.get_mutable_piece_info(PieceType::Pawn, Color::White)
+    }
+
+    pub(crate) fn white_rooks(&mut self) -> &PieceInfo {
+        self.get_mutable_piece_info(PieceType::Rook, Color::White)
+    }
+
+    pub(crate) fn white_knights(&mut self) -> &PieceInfo {
+        self.get_mutable_piece_info(PieceType::Knight, Color::White)
+    }
+
+    pub(crate) fn white_bishops(&mut self) -> &PieceInfo {
+        self.get_mutable_piece_info(PieceType::Bishop, Color::White)
+    }
+
+    pub(crate) fn white_queens(&mut self) -> &PieceInfo {
+        self.get_mutable_piece_info(PieceType::Queen, Color::White)
+    }
+
+    pub(crate) fn white_kings(&mut self) -> &PieceInfo {
+        self.get_mutable_piece_info(PieceType::King, Color::White)
+    }
+
+    pub(crate) fn black_pawns(&mut self) -> &PieceInfo {
+        self.get_mutable_piece_info(PieceType::Pawn, Color::Black)
+    }
+
+    pub(crate) fn black_rooks(&mut self) -> &PieceInfo {
+        self.get_mutable_piece_info(PieceType::Rook, Color::Black)
+    }
+
+    pub(crate) fn black_knights(&mut self) -> &PieceInfo {
+        self.get_mutable_piece_info(PieceType::Knight, Color::Black)
+    }
+
+    pub(crate) fn black_bishops(&mut self) -> &PieceInfo {
+        self.get_mutable_piece_info(PieceType::Bishop, Color::Black)
+    }
+
+    pub(crate) fn black_queens(&mut self) -> &PieceInfo {
+        self.get_mutable_piece_info(PieceType::Queen, Color::Black)
+    }
+
+    pub(crate) fn black_kings(&mut self) -> &PieceInfo {
+        self.get_mutable_piece_info(PieceType::King, Color::Black)
+    }
+
+    fn get_mutable_piece_info(&mut self, piece_type: PieceType, color: Color) -> &mut PieceInfo {
+        self.piece_infos.get_mut(&color).unwrap().get_mut(&piece_type).unwrap()
+    }
+
     /// Visualizes the bitboard by returning a Unicode represention
-    pub(crate) fn visualize(&self) -> String {
+    pub(crate) fn visualize(&mut self) -> String {
         let mut result = String::new();
         for y in (0..8).rev() {
             for x in 0..8 {
@@ -233,54 +285,54 @@ impl ChessBoard {
 
 /// Takes a bitboard object and a position and returns the Unicode representation 
 /// of that square
-fn get_square_character(bitboard: &ChessBoard, x: i32, y: i32) -> &'static str {
+fn get_square_character(bitboard: &mut ChessBoard, x: i32, y: i32) -> &'static str {
     // TODO: Improve this by storing piece information in a array, or dictionary with
     // the pawn piece enum as the key value
-    if get_square(bitboard.piece_infos[&Color::White][&PieceType::Pawn].positions, x, y) {
+    if get_square(bitboard.white_pawns().positions, x, y) {
        return "♙";
     }
 
-    if get_square(bitboard.piece_infos[&Color::Black][&PieceType::Pawn].positions, x, y) {
+    if get_square(bitboard.black_pawns().positions, x, y) {
         return "♟︎";
     }
 
-    if get_square(bitboard.piece_infos[&Color::White][&PieceType::Knight].positions, x, y) {
-        return "♘";
-    }
-
-    if get_square(bitboard.piece_infos[&Color::Black][&PieceType::Knight].positions, x, y) {
-        return "♞";
-    }
-
-    if get_square(bitboard.piece_infos[&Color::White][&PieceType::Bishop].positions, x, y) {
-        return "♗";
-    }
-
-    if get_square(bitboard.piece_infos[&Color::Black][&PieceType::Bishop].positions, x, y) {
-        return "♝";
-    }
-
-    if get_square(bitboard.piece_infos[&Color::White][&PieceType::Rook].positions, x, y) {
+    if get_square(bitboard.white_rooks().positions, x, y) {
         return "♖";
     }
 
-    if get_square(bitboard.piece_infos[&Color::Black][&PieceType::Rook].positions, x, y) {
+    if get_square(bitboard.black_rooks().positions, x, y) {
         return "♜";
     }
 
-    if get_square(bitboard.piece_infos[&Color::White][&PieceType::Queen].positions, x, y) {
+    if get_square(bitboard.white_knights().positions, x, y) {
+        return "♘";
+    }
+
+    if get_square(bitboard.black_knights().positions, x, y) {
+        return "♞";
+    }
+
+    if get_square(bitboard.white_bishops().positions, x, y) {
+        return "♗";
+    }
+
+    if get_square(bitboard.black_bishops().positions, x, y) {
+        return "♝";
+    }
+
+    if get_square(bitboard.white_queens().positions, x, y) {
         return "♕";
     }
 
-    if get_square(bitboard.piece_infos[&Color::Black][&PieceType::Queen].positions, x, y) {
+    if get_square(bitboard.black_queens().positions, x, y) {
         return "♛";
     }
 
-    if get_square(bitboard.piece_infos[&Color::White][&PieceType::King].positions, x, y) {
+    if get_square(bitboard.white_kings().positions, x, y) {
         return "♔";
     }
 
-    if get_square(bitboard.piece_infos[&Color::Black][&PieceType::King].positions, x, y) {
+    if get_square(bitboard.black_kings().positions, x, y) {
         return "♚";
     }
 
@@ -297,28 +349,28 @@ fn get_square(positions: u64, x: i32, y: i32) -> bool {
 }
 
 /// Takes a chess board and returns a bit board containing 1's on all places where there is an empty square. 
-fn get_empty_squares(chessboard : &ChessBoard) -> u64 {
+fn get_empty_squares(chessboard : &mut ChessBoard) -> u64 {
     !(get_black_pieces(chessboard) | get_white_pieces(chessboard))
 }
 
 /// Takes a chess board and returns a bit board containing 1's on all places where there is an empty square. 
-fn get_white_pieces(chessboard : &ChessBoard) -> u64 {
-    chessboard.piece_infos[&Color::White][&PieceType::Pawn].positions | 
-    chessboard.piece_infos[&Color::White][&PieceType::Bishop].positions |
-    chessboard.piece_infos[&Color::White][&PieceType::Knight].positions |
-    chessboard.piece_infos[&Color::White][&PieceType::Rook].positions |
-    chessboard.piece_infos[&Color::White][&PieceType::Queen].positions |
-    chessboard.piece_infos[&Color::White][&PieceType::King].positions
+fn get_white_pieces(chessboard : &mut ChessBoard) -> u64 {
+    chessboard.white_pawns().positions |
+    chessboard.white_rooks().positions |
+    chessboard.white_knights().positions |
+    chessboard.white_bishops().positions |
+    chessboard.white_queens().positions |
+    chessboard.white_kings().positions
 }
 
 /// Takes a chess board and returns a bit board containing 1's on all places where there is an empty square. 
-fn get_black_pieces(chessboard : &ChessBoard) -> u64 {
-    chessboard.piece_infos[&Color::Black][&PieceType::Pawn].positions |
-    chessboard.piece_infos[&Color::Black][&PieceType::Bishop].positions |
-    chessboard.piece_infos[&Color::Black][&PieceType::Knight].positions |
-    chessboard.piece_infos[&Color::Black][&PieceType::Rook].positions |
-    chessboard.piece_infos[&Color::Black][&PieceType::Queen].positions |
-    chessboard.piece_infos[&Color::Black][&PieceType::King].positions
+fn get_black_pieces(chessboard : &mut ChessBoard) -> u64 {
+    chessboard.black_pawns().positions |
+    chessboard.black_rooks().positions |
+    chessboard.black_knights().positions |
+    chessboard.black_bishops().positions |
+    chessboard.black_queens().positions |
+    chessboard.black_kings().positions
 }
 
 
@@ -328,50 +380,51 @@ mod tests {
 
     #[test]
     fn test_new() {
-        let chessboard = ChessBoard::new(false);
-        let result = chessboard.piece_infos[&Color::White][&PieceType::Pawn].positions |
-            chessboard.piece_infos[&Color::White][&PieceType::Bishop].positions |
-            chessboard.piece_infos[&Color::White][&PieceType::Knight].positions |
-            chessboard.piece_infos[&Color::White][&PieceType::Rook].positions |
-            chessboard.piece_infos[&Color::White][&PieceType::Queen].positions |
-            chessboard.piece_infos[&Color::White][&PieceType::King].positions |
-            chessboard.piece_infos[&Color::Black][&PieceType::Pawn].positions |
-            chessboard.piece_infos[&Color::Black][&PieceType::Bishop].positions |
-            chessboard.piece_infos[&Color::Black][&PieceType::Knight].positions |
-            chessboard.piece_infos[&Color::Black][&PieceType::Rook].positions |
-            chessboard.piece_infos[&Color::Black][&PieceType::Queen].positions |
-            chessboard.piece_infos[&Color::Black][&PieceType::King].positions;
+        let mut chessboard = ChessBoard::new(false);
+        let result = chessboard.white_pawns().positions |
+            chessboard.white_rooks().positions |
+            chessboard.white_knights().positions |
+            chessboard.white_bishops().positions |
+            chessboard.white_queens().positions |
+            chessboard.white_kings().positions |
+            chessboard.black_pawns().positions |
+            chessboard.black_rooks().positions |
+            chessboard.black_knights().positions |
+            chessboard.black_bishops().positions |
+            chessboard.black_queens().positions |
+            chessboard.black_kings().positions;
+
         let expected = 0b11111111_11111111_00000000_00000000_00000000_00000000_11111111_11111111;
         assert_eq!(result, expected);
     }
     
     #[test]
     fn test_get_empty_squares() {
-        let chessboard = ChessBoard::new(false);
-        let result = get_empty_squares(&chessboard);
+        let mut chessboard = ChessBoard::new(false);
+        let result = get_empty_squares(&mut chessboard);
         let expected = 0b00000000_00000000_11111111_11111111_11111111_11111111_00000000_00000000;
         assert_eq!(result, expected);
     }
 
     #[test]
     fn test_get_white_pieces(){
-        let chessboard = ChessBoard::new(false);
-        let result = get_white_pieces(&chessboard);
+        let mut chessboard = ChessBoard::new(false);
+        let result = get_white_pieces(&mut chessboard);
         let expected = 0b0000000_00000000_00000000_00000000_00000000_00000000_11111111_11111111;
         assert_eq!(result, expected);
     }
 
     #[test]
     fn test_get_black_pieces(){
-        let chessboard = ChessBoard::new(false);
-        let result = get_black_pieces(&chessboard);
+        let mut chessboard = ChessBoard::new(false);
+        let result = get_black_pieces(&mut chessboard);
         let expected = 0b11111111_11111111_00000000_00000000_00000000_00000000_00000000_00000000;
         assert_eq!(result, expected);
     }
 
     #[test]
     fn test_visualize(){
-        let chessboard = ChessBoard::new(false);
+        let mut chessboard = ChessBoard::new(false);
         let result = chessboard.visualize().replace(" ", "");
         
         let expected = "
@@ -398,6 +451,6 @@ mod tests {
             position_y: 4
         });
 
-        assert_eq!(chessboard.piece_infos[&Color::White][&PieceType::Pawn].positions, 0b00000000_00000000_00000000_01000000_00000000_00000000_11111111_00000000);
+        assert_eq!(chessboard.white_pawns().positions, 0b00000000_00000000_00000000_01000000_00000000_00000000_11111111_00000000);
     }
 }

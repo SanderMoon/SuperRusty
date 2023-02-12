@@ -97,21 +97,21 @@ mod tests {
     #[test]
     fn test_read_fen() {
         let fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-        let chess_board = read_fen(fen);
-        
-        let start_board = ChessBoard::new(false);
+        let mut chess_board = read_fen(fen);
 
-        assert_eq!(chess_board.piece_infos[&Color::White][&PieceType::Pawn].positions, start_board.piece_infos[&Color::White][&PieceType::Pawn].positions);
-        assert_eq!(chess_board.piece_infos[&Color::White][&PieceType::Knight].positions, start_board.piece_infos[&Color::White][&PieceType::Knight].positions);
-        assert_eq!(chess_board.piece_infos[&Color::White][&PieceType::Bishop].positions, start_board.piece_infos[&Color::White][&PieceType::Bishop].positions);
-        assert_eq!(chess_board.piece_infos[&Color::White][&PieceType::Rook].positions, start_board.piece_infos[&Color::White][&PieceType::Rook].positions);
-        assert_eq!(chess_board.piece_infos[&Color::White][&PieceType::Queen].positions, start_board.piece_infos[&Color::White][&PieceType::Queen].positions);
-        assert_eq!(chess_board.piece_infos[&Color::White][&PieceType::King].positions, start_board.piece_infos[&Color::White][&PieceType::King].positions);
-        assert_eq!(chess_board.piece_infos[&Color::Black][&PieceType::Pawn].positions, start_board.piece_infos[&Color::Black][&PieceType::Pawn].positions);
-        assert_eq!(chess_board.piece_infos[&Color::Black][&PieceType::Knight].positions, start_board.piece_infos[&Color::Black][&PieceType::Knight].positions);
-        assert_eq!(chess_board.piece_infos[&Color::Black][&PieceType::Bishop].positions, start_board.piece_infos[&Color::Black][&PieceType::Bishop].positions);
-        assert_eq!(chess_board.piece_infos[&Color::Black][&PieceType::Rook].positions, start_board.piece_infos[&Color::Black][&PieceType::Rook].positions);
-        assert_eq!(chess_board.piece_infos[&Color::Black][&PieceType::Queen].positions, start_board.piece_infos[&Color::Black][&PieceType::Queen].positions);
-        assert_eq!(chess_board.piece_infos[&Color::Black][&PieceType::King].positions, start_board.piece_infos[&Color::Black][&PieceType::King].positions);
+        let mut start_board = ChessBoard::new(false);
+
+        assert_eq!(chess_board.white_pawns().positions, start_board.white_pawns().positions);
+        assert_eq!(chess_board.white_knights().positions, start_board.white_knights().positions);
+        assert_eq!(chess_board.white_bishops().positions, start_board.white_bishops().positions);
+        assert_eq!(chess_board.white_rooks().positions, start_board.white_rooks().positions);
+        assert_eq!(chess_board.white_queens().positions, start_board.white_queens().positions);
+        assert_eq!(chess_board.white_kings().positions, start_board.white_kings().positions);
+        assert_eq!(chess_board.black_pawns().positions, start_board.black_pawns().positions);
+        assert_eq!(chess_board.black_knights().positions, start_board.black_knights().positions);
+        assert_eq!(chess_board.black_bishops().positions, start_board.black_bishops().positions);
+        assert_eq!(chess_board.black_rooks().positions, start_board.black_rooks().positions);
+        assert_eq!(chess_board.black_queens().positions, start_board.black_queens().positions);
+        assert_eq!(chess_board.black_kings().positions, start_board.black_kings().positions);
     }
 }
