@@ -24,24 +24,24 @@ fn set_en_passant_square(chess_board: &mut ChessBoard, en_passant_square: &str) 
     if en_passant_square == "-" {
         return;
     }
-    // convert the string to a square number (right to left) for example a3 is square 24, a6 is square 48
+    // convert the string to a square number for example a3 is square 17, a6 is square 41
     let square_number = match en_passant_square {
-        "a3" => 24,
-        "b3" => 23,
-        "c3" => 22,
-        "d3" => 21,
-        "e3" => 20,
-        "f3" => 19,
-        "g3" => 18,
-        "h3" => 17,
-        "a6" => 48,
-        "b6" => 47,
-        "c6" => 46,
-        "d6" => 45,
-        "e6" => 44,
-        "f6" => 43,
-        "g6" => 42,
-        "h6" => 41,
+        "a3" => 17,
+        "b3" => 18,
+        "c3" => 19,
+        "d3" => 20,
+        "e3" => 21,
+        "f3" => 22,
+        "g3" => 23,
+        "h3" => 24,
+        "a6" => 41,
+        "b6" => 42,
+        "c6" => 43,
+        "d6" => 44,
+        "e6" => 45,
+        "f6" => 46,
+        "g6" => 47,
+        "h6" => 48,
         _ => panic!("Invalid en passant square in FEN string")
     };
     // set the en passant square
@@ -186,7 +186,6 @@ mod tests {
         assert_eq!(true, chess_board.white_queen_side_castle);
         assert_eq!(true, chess_board.black_king_side_castle);
         assert_eq!(true, chess_board.black_queen_side_castle);
-        assert_eq!(Some(1 << 19), chess_board.en_passant_target);
-
+        assert_eq!(Some(1 << 20), chess_board.en_passant_target);
     }
 }
