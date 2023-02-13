@@ -1,10 +1,9 @@
-mod chess_game;
 mod chess_game_bitboard;
 mod movesets;
 mod utils;
 use chess_game_bitboard::ChessBoard;
 
 fn main() {
-    let chess_board : ChessBoard = ChessBoard::new();
+    let mut chess_board : ChessBoard = ChessBoard::new(false);
     println!("{}", chess_board.visualize());
 }

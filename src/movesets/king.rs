@@ -1,5 +1,5 @@
 use crate::utils::board_utils::{A_FILE, H_FILE, RANK_EIGHT, RANK_ONE};
-use crate::chess_game_bitboard::{PieceType};
+use crate::chess_game_bitboard::{PieceInfo};
 
 
 fn king_move_east(king_position : u64) -> u64{
@@ -36,7 +36,7 @@ fn get_king_attacks(all_king_moves: u64, opponent_pieces: u64) -> u64{
     all_king_moves & opponent_pieces
 }
 
-fn set_moves_attacks_kings(king: &mut PieceType, opponent_pieces: u64, empty_squares: u64){
+fn set_moves_attacks_kings(king: &mut PieceInfo, opponent_pieces: u64, empty_squares: u64){
     let all_king_moves = all_king_moves(king.positions);
     king.moves = get_king_soft_moves(all_king_moves, empty_squares);
     king.attacks = get_king_attacks(all_king_moves, opponent_pieces);
@@ -44,7 +44,7 @@ fn set_moves_attacks_kings(king: &mut PieceType, opponent_pieces: u64, empty_squ
 
 mod tests{
     use super::*;
-    use crate::chess_game_bitboard::{PieceType, Color};
+    use crate::chess_game_bitboard::{PieceInfo, Color};
 
     #[test]
     fn test_king_move_east_correct(){
@@ -148,7 +148,7 @@ mod tests{
 
     #[test]
     fn test_set_moves_attacks_kings(){
-        let mut king = PieceType{
+        let mut king = PieceInfo{
             positions: 0b00000000_00000000_00000000_00000000_00000000_00000000_00000000_00001000,
             color: Color::White,
             moves: 0,
@@ -160,7 +160,7 @@ mod tests{
 
         set_moves_attacks_kings(&mut king, opponent_pieces, empty_squares);
 
-        let expected = PieceType{
+        let expected = PieceInfo{
             positions: 0b00000000_00000000_00000000_00000000_00000000_00000000_00000000_00001000,
             color: Color::White,
             moves: 0b00000000_00000000_00000000_00000000_00000000_00000000_00000000_00010100,

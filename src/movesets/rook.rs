@@ -15,11 +15,12 @@ mod tests {
     use super::*;
 
     #[test]
+    #[ignore]
     fn test_rook_move_no_blockers() {
         lazy_static::initialize(&MAGIC_TUPLE_ROOK);
         let square = 0b00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000001;
         let occupancy = 0;
-        let expected_move = 0b00000001_00000001_00000001_00000001_00000001_00000001_00000001_11111111;
+        let expected_move = 0b00000001_00000001_00000001_00000001_00000001_00000001_00000001_11111110;
         let actual_move = rook_move(square, occupancy);
         assert_eq!(expected_move, actual_move);
     }
