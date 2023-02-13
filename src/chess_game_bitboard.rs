@@ -65,6 +65,7 @@ pub(crate) struct ChessBoard {
     pub black_king_side_castle: bool,
     pub black_queen_side_castle: bool,
     pub move_history: Vec<Move>,
+    pub en_passant_target: Option<u64>
 
 
 }
@@ -184,7 +185,8 @@ impl ChessBoard {
             black_king_side_castle: true,
             black_queen_side_castle: true,
             active_color: Color::White,
-            move_history: Vec::new()
+            move_history: Vec::new(),
+            en_passant_target: None
         }
     }
 
@@ -288,8 +290,13 @@ impl ChessBoard {
         }
     }
 
+    pub(crate) fn set_en_passant_square(&mut self, en_passant_target: u64) {
+        self.en_passant_target = Some(en_passant_target);
+    }
+
 
 }
+
 
 /// Takes a bitboard object and a position and returns the Unicode representation 
 /// of that square

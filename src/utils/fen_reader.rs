@@ -13,8 +13,39 @@ pub(crate) fn read_fen(fen: &str) -> ChessBoard{
     set_active_color(&mut chess_board, fen_vec[1]);
     // set the castling rights
     set_castling_rights(&mut chess_board, fen_vec[2]);
+    // set the en passant square
+    set_en_passant_square(&mut chess_board, fen_vec[3]);
     chess_board
 
+}
+
+fn set_en_passant_square(chess_board: &mut ChessBoard, en_passant_square: &str) {
+    // if the en passant square is "-", do nothing
+    if en_passant_square == "-" {
+        return;
+    }
+    // convert the string to a square number (right to left) for example a3 is square 24, a6 is square 48
+    let square_number = match en_passant_square {
+        "a3" => 24,
+        "b3" => 23,
+        "c3" => 22,
+        "d3" => 21,
+        "e3" => 20,
+        "f3" => 19,
+        "g3" => 18,
+        "h3" => 17,
+        "a6" => 48,
+        "b6" => 47,
+        "c6" => 46,
+        "d6" => 45,
+        "e6" => 44,
+        "f6" => 43,
+        "g6" => 42,
+        "h6" => 41,
+        _ => panic!("Invalid en passant square in FEN string")
+    };
+    // set the en passant square
+    chess_board.set_en_passant_square(1u64 << (square_number-1));
 }
 
 fn set_castling_rights(chess_board: &mut ChessBoard, castling_string: &str) {
@@ -155,6 +186,7 @@ mod tests {
         assert_eq!(true, chess_board.white_queen_side_castle);
         assert_eq!(true, chess_board.black_king_side_castle);
         assert_eq!(true, chess_board.black_queen_side_castle);
+        assert_eq!(Some(1 << 19), chess_board.en_passant_target);
 
     }
 }
