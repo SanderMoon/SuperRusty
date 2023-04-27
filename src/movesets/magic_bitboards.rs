@@ -1,17 +1,17 @@
-use crate::{utils::board_utils::{RANKS, FILES}, chess_game_bitboard::{PieceNames}};
+use crate::{utils::board_utils::{RANKS, FILES}, chess::piece::{PieceInfo, PieceType}};
 use lazy_static::lazy_static;
 
 // This class generate plain magic numbers and look-up tables for the Rooks and Bishops. 
 
 lazy_static! {
-    pub(crate) static ref BLOCKERMASKS_ROOK: [u64; 64] = generate_all_blockermasks(PieceNames::Rook);
+    pub(crate) static ref BLOCKERMASKS_ROOK: [u64; 64] = generate_all_blockermasks(PieceType::Rook);
     pub(crate) static ref BLOCKERBOARDS_ROOK: Vec<Vec<u64>> = generate_all_blockerboards(&BLOCKERMASKS_ROOK);
-    static ref MOVEBOARDS_ROOK: Vec<Vec<u64>>= generate_all_moveboards(&BLOCKERBOARDS_ROOK, PieceNames::Rook);
+    static ref MOVEBOARDS_ROOK: Vec<Vec<u64>>= generate_all_moveboards(&BLOCKERBOARDS_ROOK, PieceType::Rook);
     pub(crate) static ref MAGIC_TUPLE_ROOK : ([u64; 64], Vec<Vec<Option<u64>>>)  = generate_magic_numbers(&BLOCKERBOARDS_ROOK ,&MOVEBOARDS_ROOK, &BLOCKERMASKS_ROOK);
 
-    pub(crate) static ref BLOCKERMASKS_BISHOP: [u64; 64] = generate_all_blockermasks(PieceNames::Bishop);
+    pub(crate) static ref BLOCKERMASKS_BISHOP: [u64; 64] = generate_all_blockermasks(PieceType::Bishop);
     pub(crate) static ref BLOCKERBOARDS_BISHOP: Vec<Vec<u64>> = generate_all_blockerboards(&BLOCKERMASKS_BISHOP);
-    static ref MOVEBOARDS_BISHOP: Vec<Vec<u64>> = generate_all_moveboards(&BLOCKERBOARDS_BISHOP, PieceNames::Bishop);
+    static ref MOVEBOARDS_BISHOP: Vec<Vec<u64>> = generate_all_moveboards(&BLOCKERBOARDS_BISHOP, PieceType::Bishop);
     pub(crate) static ref MAGIC_TUPLE_BISHOP : ([u64; 64], Vec<Vec<Option<u64>>>)  = generate_magic_numbers(&BLOCKERBOARDS_BISHOP ,&MOVEBOARDS_BISHOP, &BLOCKERMASKS_BISHOP);
 
 }
@@ -120,11 +120,11 @@ fn generate_bishop_move_pattern(row: i8, col: i8) -> u64 {
     pattern
 }
 
-pub fn generate_all_blockermasks(piece_name: PieceNames) -> [u64; 64]{
+pub fn generate_all_blockermasks(piece_name: PieceType) -> [u64; 64]{
     let mut blockermasks: [u64; 64] = [0; 64];
     for i in 0..64{
         let square = 1 << i;
-        if piece_name == PieceNames::Rook {
+        if piece_name == PieceType::Rook {
             blockermasks[i] = blockermask_rook(square);
         } else {
             blockermasks[i] = blockermask_bishop(square);
@@ -231,7 +231,7 @@ fn clear_axes(clear_switch: &mut bool, moveboard: &mut u64, row: i8, col: i8, ax
     }
 }
 
-pub fn generate_all_moveboards(blockerboards: &Vec<Vec<u64>>, piece_name: PieceNames) -> Vec<Vec<u64>>{
+pub fn generate_all_moveboards(blockerboards: &Vec<Vec<u64>>, piece_name: PieceType) -> Vec<Vec<u64>>{
     // Q1 Does the move pattern match the blockerboard by index?
     //let move_pattern = generate_all_move_patterns(piece_name);
     let array_size = blockerboards[0].len();
@@ -239,7 +239,7 @@ pub fn generate_all_moveboards(blockerboards: &Vec<Vec<u64>>, piece_name: PieceN
     for i in 0..64{
         let square = 1 << i;
         let move_pattern ;
-        if piece_name == PieceNames::Rook {
+        if piece_name == PieceType::Rook {
             move_pattern = generate_rook_move_pattern(i / 8 as i8, i % 8 as i8);
         } else {
             move_pattern = generate_bishop_move_pattern(i / 8 as i8, i % 8 as i8);
@@ -252,11 +252,11 @@ pub fn generate_all_moveboards(blockerboards: &Vec<Vec<u64>>, piece_name: PieceN
     moveboards
 }
 
-fn generate_all_move_patterns(piece_name: PieceNames) -> [u64; 64] {
+fn generate_all_move_patterns(piece_name: PieceType) -> [u64; 64] {
     let mut move_pattern: [u64; 64] = [0; 64];
     for y in 0..8{
         for x in 0..8{
-            if piece_name == PieceNames::Rook {
+            if piece_name == PieceType::Rook {
                 move_pattern[8 * y + x] = generate_bishop_move_pattern(y as i8, x as i8);
             } else {
                 move_pattern[8 * y + x] = generate_rook_move_pattern(y as i8, x as i8);
@@ -382,13 +382,13 @@ mod tests{
 
     #[test]
     fn test_generate_all_blockermasks_rook_no_null(){
-        let result = generate_all_blockermasks(PieceNames::Rook);
+        let result = generate_all_blockermasks(PieceType::Rook);
         assert!(result.iter().all(|&x| x != 0));
     }
 
     #[test]
     fn test_generate_all_blockermasks_bishop_no_null(){
-        let result = generate_all_blockermasks(PieceNames::Bishop);
+        let result = generate_all_blockermasks(PieceType::Bishop);
         assert!(result.iter().all(|&x| x != 0));
     }
 
@@ -405,25 +405,25 @@ mod tests{
 
     #[test]
     fn test_generate_all_move_patterns_rook_not_empty(){
-        let result = generate_all_move_patterns(PieceNames::Rook);
+        let result = generate_all_move_patterns(PieceType::Rook);
         assert!(result.iter().all(|&x| x != 0));
     }
 
     #[test]
     fn test_generate_all_move_patterns_bishop_not_empty(){
-        let result = generate_all_move_patterns(PieceNames::Bishop);
+        let result = generate_all_move_patterns(PieceType::Bishop);
         assert!(result.iter().all(|&x| x != 0));
     }
 
     #[test]
     fn test_generate_all_blockermasks_rook_not_empty(){
-        let result = generate_all_blockermasks(PieceNames::Rook);
+        let result = generate_all_blockermasks(PieceType::Rook);
         assert!(result.iter().all(|&x| x != 0));
     }
 
     #[test]
     fn test_generate_all_blockermasks_bishop_not_empty(){
-        let result = generate_all_blockermasks(PieceNames::Bishop);
+        let result = generate_all_blockermasks(PieceType::Bishop);
         assert!(result.iter().all(|&x| x != 0));
     }
 
@@ -439,10 +439,10 @@ mod tests{
     #[test]
     #[ignore]
     fn test_generate_magic_number_rook(){
-        let piece_name = PieceNames::Rook;
+        let piece_name = PieceType::Rook;
         let blockermasks = generate_all_blockermasks(piece_name);
         let blockerboards = generate_all_blockerboards(&blockermasks);
-        let moveboards = generate_all_moveboards(&blockerboards, PieceNames::Rook);
+        let moveboards = generate_all_moveboards(&blockerboards, PieceType::Rook);
         let (magic_numbers, magic_tables) = generate_magic_numbers(&blockerboards, &moveboards, &blockermasks);
         // test if each blockerboard * magic_number maps gives an index of an element in the magic table that is equal to the moveboard
         for i in 0..64{
@@ -463,10 +463,10 @@ mod tests{
     #[test]
     #[ignore]
     fn test_generate_magic_number_bishop(){
-        let piece_name = PieceNames::Bishop;
+        let piece_name = PieceType::Bishop;
         let blockermasks = generate_all_blockermasks(piece_name);
         let blockerboards = generate_all_blockerboards(&blockermasks);
-        let moveboards = generate_all_moveboards(&blockerboards, PieceNames::Bishop);
+        let moveboards = generate_all_moveboards(&blockerboards, PieceType::Bishop);
         let (magic_numbers, magic_tables) = generate_magic_numbers(&blockerboards, &moveboards, &blockermasks);
         // test if each blockerboard * magic_number maps gives an index of an element in the magic table that is equal to the moveboard
         for i in 0..64{

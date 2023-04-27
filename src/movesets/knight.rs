@@ -1,6 +1,6 @@
 
 use crate::utils::board_utils::{A_FILE, B_FILE, G_FILE, H_FILE, RANK_EIGHT, RANK_SEVEN, RANK_ONE, RANK_TWO};
-use crate::chess_game_bitboard::{PieceType};
+use crate::chess::piece::{PieceInfo};
 
 
 fn knight_move_nnw(knight_position: u64) -> u64 {
@@ -56,7 +56,7 @@ fn get_knight_attacks(all_knight_moves: u64, opponent_pieces: u64) -> u64{
     all_knight_moves & opponent_pieces
 }
 
-fn set_moves_attacks_knights(knights: &mut PieceType, opponent_pieces: u64, empty_squares: u64){
+fn set_moves_attacks_knights(knights: &mut PieceInfo, opponent_pieces: u64, empty_squares: u64){
     let all_knight_moves = all_knight_moves(knights.positions);
     knights.moves = get_knight_soft_moves(all_knight_moves, empty_squares);
     knights.attacks = get_knight_attacks(all_knight_moves, opponent_pieces);
@@ -64,7 +64,7 @@ fn set_moves_attacks_knights(knights: &mut PieceType, opponent_pieces: u64, empt
 
 mod tests{
     use super::*;
-    use crate::chess_game_bitboard::{PieceType, Color};
+    use crate::chess::piece::{PieceInfo, Color};
 
     #[test]
     fn test_knight_move_nne_correct(){
@@ -340,7 +340,7 @@ mod tests{
 
     #[test]
     fn test_set_moves_attacks_knights(){
-        let mut knights = PieceType{
+        let mut knights = PieceInfo{
             positions: 0b00000000_00000000_00000000_00010000_00000000_00000000_00000000_00000000,
             color: Color::White,
             moves: 0,
@@ -352,7 +352,7 @@ mod tests{
 
         set_moves_attacks_knights(&mut knights, opponent_pieces, empty_squares);
 
-        let expected = PieceType{
+        let expected = PieceInfo{
             positions: 0b00000000_00000000_00000000_00010000_00000000_00000000_00000000_00000000,
             color: Color::White,
             moves: 0b00000000_00000000_01000100_00000000_01000100_00000000_00000000_00000000,
