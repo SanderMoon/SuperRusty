@@ -1,7 +1,7 @@
-mod knight;
-mod bishop;
-mod king;
-mod pawn;
-mod magic_bitboards;
-mod rook;
-mod queen;
+pub(crate) mod knight;
+pub(crate) mod bishop;
+pub(crate) mod king;
+pub(crate) mod pawn;
+pub(crate) mod magic_bitboards;
+pub(crate) mod rook;
+pub(crate) mod queen;

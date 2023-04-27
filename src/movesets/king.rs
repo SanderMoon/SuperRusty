@@ -1,5 +1,6 @@
+use crate::chess::chess_move::Move;
 use crate::utils::board_utils::{A_FILE, H_FILE, RANK_EIGHT, RANK_ONE};
-use crate::chess::piece::PieceInfo;
+use crate::chess::piece::{PieceInfo, PieceType};
 
 
 
@@ -43,9 +44,21 @@ fn set_moves_attacks_kings(king: &mut PieceInfo, opponent_pieces: u64, empty_squ
     king.attacks = get_king_attacks(all_king_moves, opponent_pieces);
 }
 
+pub(crate) fn calculate_individual_king_moves(king: &mut PieceInfo, opponent_pieces: u64, empty_squares: u64) -> Vec<Move> {
+    let mut moves = Vec::new();
+    set_moves_attacks_kings(king, opponent_pieces, empty_squares);
+    let mut king_moves = king.moves | king.attacks;
+    while king_moves != 0 {
+        let king_move = king_moves & (!king_moves + 1);
+        moves.push(Move::new(PieceType::King ,king.positions, king_move, false, None));
+        king_moves ^= king_move;
+    }
+    moves
+}
+
 mod tests{
     use super::*;
-    use crate::chess::piece::{PieceInfo, Color};
+    use crate::chess::piece::{PieceInfo, Color, PieceType};
 
     #[test]
     fn test_king_move_east_correct(){
@@ -153,7 +166,8 @@ mod tests{
             positions: 0b00000000_00000000_00000000_00000000_00000000_00000000_00000000_00001000,
             color: Color::White,
             moves: 0,
-            attacks: 0
+            attacks: 0,
+            piece_type: PieceType::King
         };
 
         let opponent_pieces : u64 =   0b00000000_00000000_00000000_00000000_00000000_00000000_00011100_00000000;
@@ -165,10 +179,29 @@ mod tests{
             positions: 0b00000000_00000000_00000000_00000000_00000000_00000000_00000000_00001000,
             color: Color::White,
             moves: 0b00000000_00000000_00000000_00000000_00000000_00000000_00000000_00010100,
-            attacks: 0b00000000_00000000_00000000_00000000_00000000_00000000_00011100_00000000
+            attacks: 0b00000000_00000000_00000000_00000000_00000000_00000000_00011100_00000000,
+            piece_type: PieceType::King
         };
 
         assert_eq!(expected, king);
+        
+    }
+
+    #[test]
+    fn test_calculate_individual_king_moves(){
+        let mut king = PieceInfo{
+            positions: 0b00000000_00000000_00000000_00000000_00000000_00000000_00000000_00001000,
+            color: Color::White,
+            moves: 0,
+            attacks: 0,
+            piece_type: PieceType::King
+        };
+
+        let opponent_pieces : u64 =   0b00000000_00000000_00000000_00000000_00000000_00000000_00011100_00000000;
+        let empty_squares : u64 =     !opponent_pieces;
+
+        let result = calculate_individual_king_moves(&mut king, opponent_pieces, empty_squares);
+        assert_eq!(5, result.len());
         
     }
 

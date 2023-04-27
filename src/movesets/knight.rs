@@ -64,7 +64,7 @@ fn set_moves_attacks_knights(knights: &mut PieceInfo, opponent_pieces: u64, empt
 
 mod tests{
     use super::*;
-    use crate::chess::piece::{PieceInfo, Color};
+    use crate::chess::piece::{PieceInfo, Color, PieceType};
 
     #[test]
     fn test_knight_move_nne_correct(){
@@ -344,7 +344,8 @@ mod tests{
             positions: 0b00000000_00000000_00000000_00010000_00000000_00000000_00000000_00000000,
             color: Color::White,
             moves: 0,
-            attacks: 0
+            attacks: 0,
+            piece_type: PieceType::Knight,
         };
 
         let opponent_pieces : u64=   0b00000000_00101000_00000000_00000000_00000000_00101000_00000000_00000000;
@@ -356,7 +357,8 @@ mod tests{
             positions: 0b00000000_00000000_00000000_00010000_00000000_00000000_00000000_00000000,
             color: Color::White,
             moves: 0b00000000_00000000_01000100_00000000_01000100_00000000_00000000_00000000,
-            attacks: 0b00000000_00101000_00000000_00000000_00000000_00101000_00000000_00000000
+            attacks: 0b00000000_00101000_00000000_00000000_00000000_00101000_00000000_00000000,
+            piece_type: PieceType::Knight,
         };
 
         assert_eq!(expected, knights);
